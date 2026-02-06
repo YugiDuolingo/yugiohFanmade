@@ -363,6 +363,23 @@ io.on('connection', (socket) => {
   });
 });
 
+
+// Serve lobby.html as the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'lobby.html'));
+});
+
+// Route for game.html
+app.get('/game', (req, res) => {
+  res.sendFile(path.join(__dirname, 'game.html'));
+});
+
+// Optional: Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', rooms: rooms.size });
+});
+
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🎮 Yu-Gi-Oh Server running on port ${PORT}`);
 }); 
