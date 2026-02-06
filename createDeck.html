@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Excel to JavaScript Converter</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #output { margin-top: 20px; }
+        #codeContainer { 
+            position: relative; 
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f5f5f5;
+        }
+        #codeBlock { 
+            padding: 15px; 
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        #copyButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #copyButton:hover {
+            background: #45a049;
+        }
+        #copyButton.copied {
+            background: #2196F3;
+        }
+        #howToPlayBtn {
+            margin-left: 20px;
+            padding: 8px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #howToPlayBtn:hover {
+            background: #0b7dda;
+        }
+        .status {
+            margin-top: 10px;
+            color: #666;
+            font-style: italic;
+        }
+        #instructions {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+            display: none;
+        }
+        #instructions h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        #instructions h4 {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        #instructions ul, #instructions ol {
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+        #instructions li {
+            margin-bottom: 8px;
+        }
+        .code-example {
+    background: #e8e8e8;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-family: monospace;
+    overflow-x: auto;
+    white-space: pre; 
+}
+        .close-btn {
+            float: right;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-btn:hover {
+            background: #cc0000;
+        }
+        .game-link {
+            display: inline-block;
+            margin: 10px 20px 10px 0;
+            padding: 10px 15px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .game-link:hover {
+            background: #45a049;
+        }
+        .important-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Upload Sheet (excel / openOffice / libraOffice)</h2>
+    <input type="file" id="excelFile" accept=".xlsx, .xls, .ods">
+    <button id="howToPlayBtn">How to Play</button>
+    <div id="output"></div>
+    <div id="instructions">
+        <button class="close-btn" id="closeInstructions">×</button>
+        <h3>How to create deck / How to play</h3>
+        
+        <a href="https://www.github.com" class="game-link" target="_blank">Game GitHub Link</a>
+       
+        
+        <h4>Essential Attributes to Fill in Excel:</h4>
+        <ul>
+            <li><strong>name</strong> (cn) - Card name</li>
+            <li><strong>atr</strong> (attribute) - monster/spell/trap</li>
+            <li><strong>attack</strong> (ak) - For monster cards only</li>
+            <li><strong>defense</strong> (df) - For monster cards only</li>
+        </ul>
+        
+<h4>Example Excel Format: start by entering the headers of the collumns</h4>
+<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <thead style="background: #4CAF50; color: white;">
+    <tr>
+      <th style="padding: 8px;">cn</th>
+      <th style="padding: 8px;">atr</th>
+      <th style="padding: 8px;">tr</th>
+      <th style="padding: 8px;">ak</th>
+      <th style="padding: 8px;">df</th>
+      <th style="padding: 8px;">tp</th>
+      <th style="padding: 8px;">value</th>
+      <th style="padding: 8px;">extra</th>  
+      <th style="padding: 8px;">clr</th>
+      <th style="padding: 8px;">emoji</th>
+      <th style="padding: 8px;">desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background: #f9f9f9;">
+      <td style="padding: 8px;">monster1</td>
+      <td style="padding: 8px;">dark</td>
+      <td style="padding: 8px;">7</td>
+      <td style="padding: 8px;">1000</td>
+      <td style="padding: 8px;">2000</td>
+      <td style="padding: 8px;">fiend</td>
+      <td style="padding: 8px;">300</td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;">✨</td>
+      <td style="padding: 8px;">description text</td>
+    </tr>
+    <tr style="background: #fff;">
+      <td style="padding: 8px;">horn of the unicorn</td>
+      <td style="padding: 8px;">spell</td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;">equip</td>
+      <td style="padding: 8px;">a700</td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;">🔥</td>
+      <td style="padding: 8px;">monster equiped with this card gains 700 ak pts</td>
+    </tr>
+    <tr style="background: #f9f9f9;">
+      <td style="padding: 8px;">7 tools of the bandit</td>
+      <td style="padding: 8px;">trap</td>
+       <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;">equip</td>
+      <td style="padding: 8px;">a-1000</td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;"></td>
+      <td style="padding: 8px;">🛡️</td>
+      <td style="padding: 8px;"> if opponent plays a trap  tribute 1000 lp pts to destroy it</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="color: #666; font-style: italic; margin-top: 5px;">
+  Note: For spell and trap cards, only "cn", "atr", "desc", and "emoji" are required. Other fields can be left empty.
+</p>
+       <div class="code-example">[
+  {
+    "cn": "Alligator's Sword Dragon",
+    "atr": "wind",
+    "tr": 5,
+    "ak": 1500,
+    "df": 1200,
+    "tp": "winged-beast",
+    "extra": "true", // card starts in the extra deck
+    "clr": 1, // 1 = fusion (purple)
+    "emoji": "🍔",
+    "desc": "If the only monsters your opponent controls are face-down, this card can attack your opponent directly."
+  },
+
+  {
+    "cn": "Dark Magician of Chaos",
+    "atr": "dark",
+    "tr": 8,
+    "ak": 2800,
+    "df": 2600,
+    "tp": "Spell-caster",
+    "clr": 2 , // 2 = ritual (blue)
+    "emoji": "🍔"
+  }
+
+
+  {
+    "cn": "Dark Magician Girl",
+    "atr": "dark",
+    "tr": 6,
+    "ak": 2000,
+    "df": 1700,
+    "tp": "Spell-caster",
+    "value": "a300",
+    "emoji": "🍔",
+    "desc": "This card gains 300 ATK for every \"Dark Magician\" or \"Magician of Black Chaos\" in either player's Graveyard."
+  }, 
+   
+  {
+    "cn": "pot of greed",
+    "atr": "spell",
+    "desc": "draw two cards",
+    "emoji": "🎴" // you can write any text not just a single emoji
+  },
+  {
+    "cn": "negate attack",
+    "atr": "trap",
+    "desc": "end opponent's battle phase",
+    "emoji": "🛡️"  // you can write any text not just a single emoji
+  }
+  
+]
+
+values examples :
+a700 : increases attack by 700 or lp by 700
+a-500 : decreases attack by 500 or lp by 500
+b500 increases both atk and defense by 500
+b-500 decreases both atk and defense by 500  
+l+ : for graceful dice , works on lp too
+l- : for skull dice , works on lp too     
+
+</div>
+        
+        <div class="important-note">
+            <strong>Important:</strong> You can play the game without loading images or audio.
+        </div>
+        
+        <h4>Media Files:</h4>
+        <ul>
+            <li>To display card images: Image filename must match the card name (e.g., "dark magician.jpg")</li>
+            <li>To play card sounds: Audio filename must match the card name (e.g., "dark magician.mp3")</li>
+        </ul>
+        
+        <h4>Controls:</h4>
+        <ol>
+            <li><strong>Deck Button:</strong> Double-tap to draw a card</li>
+            <li><strong>LP (Life Points):</strong> Tap to modify manually</li>
+            <li><strong>Hand Button:</strong>
+                <ul>
+                    <li>If active: Sends a card from field to your hand</li>
+                    <li>Double-tap: Brings your latest card in graveyard to hand</li>
+                </ul>
+            </li>
+            <li><strong>+100 Button:</strong> Modifies attack/defense of a monster
+                <ul>
+                    <li>Double-tap the button to changethe default value</li>
+                    <li>When active + double-tap monster: Change value by 500</li>
+                </ul>
+            </li>
+            <li><strong>Check Button:</strong> When active, pressing a card shows its data</li>
+            <li><strong>X Button:</strong> Closes any popup</li>
+            <li><strong>Flash Button:</strong> Lets you transfer cards</li>
+            <li><strong>S Button:</strong> Simulates a dice (1-6)</li>
+            <li><strong>Eye Button:</strong> Lets you peek through face-down cards</li>
+        </ol>
+        
+        <h4>Battle Phase:</h4>
+        <ol>
+            <li>Press BP button</li>
+            <li>Select your monster</li>
+            <li>then you can select any monster on the field (including your own or any life points) </li>
+            <li>Press again on your monster to confirm attack</li>
+        </ol>
+        
+        <h4>Direct Attack:</h4>
+        <ol>
+            <li>Select your monster</li>
+            <li>Select opponent's life points</li>
+        </ol>
+        
+        <h4>Game Restart:</h4>
+        <p>Press the X button three times to open game menu</p>
+        <h4>Card value</h4>
+        <p>if a card has a value assigned to it, activate the value by pressing the card name  </p>
+
+        
+        <h4>Game Rules:</h4>
+        <p>The game has no restrictions, except: <strong>You can't attack on the first turn</strong></p>
+        <p>you can attack your own monsters and own life points, attack directly</p>
+    </div>
+
+    <script>
+    // Toggle instructions visibility
+    document.getElementById('howToPlayBtn').addEventListener('click', function() {
+        const instructions = document.getElementById('instructions');
+        instructions.style.display = instructions.style.display === 'block' ? 'none' : 'block';
+    });
+    
+    document.getElementById('closeInstructions').addEventListener('click', function() {
+        document.getElementById('instructions').style.display = 'none';
+    });
+    
+    // Excel file processing
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        
+       reader.onload = function(e) {
+    try {
+        const data = e.target.result;
+        let workbook;
+        
+        // Check if it's an ODS file (LibreOffice/OpenOffice)
+        if (file.name.toLowerCase().endsWith('.ods')) {
+            // For ODS files, use binary string
+            workbook = XLSX.read(data, { type: 'binary' });
+        } else {
+            // For Excel files, use array
+            const arrayData = new Uint8Array(data);
+            workbook = XLSX.read(arrayData, { type: 'array' });
+        }
+        
+        // Get the first sheet
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        // Convert to JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                console.log('Total rows converted:', jsonData.length);
+                console.log('First few rows:', jsonData.slice(0, 3));
+                
+                // Generate JavaScript code - just the array starting with [
+                const arrayString = JSON.stringify(jsonData, null, 2);
+                
+                // Display results
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = 
+                    `<h3>Converted ${jsonData.length} rows:</h3>
+                    <div id="codeContainer">
+                        <button id="copyButton">Copy to Clipboard</button>
+                        <pre id="codeBlock">${arrayString}</pre>
+                    </div>
+                    <div id="statusMessage" class="status"></div>`;
+                
+                // Add copy functionality
+                const copyButton = document.getElementById('copyButton');
+                const codeBlock = document.getElementById('codeBlock');
+                const statusMessage = document.getElementById('statusMessage');
+                
+                copyButton.addEventListener('click', async function() {
+                    try {
+                        // Copy just the array content
+                        await navigator.clipboard.writeText(arrayString);
+                        
+                        // Visual feedback
+                        const originalText = copyButton.textContent;
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copied');
+                        
+                        statusMessage.textContent = 'Array copied to clipboard!';
+                        statusMessage.style.color = '#4CAF50';
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            copyButton.textContent = originalText;
+                            copyButton.classList.remove('copied');
+                            statusMessage.textContent = '';
+                        }, 2000);
+                        
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                        statusMessage.textContent = 'Failed to copy to clipboard';
+                        statusMessage.style.color = '#f44336';
+                    }
+                });
+                    
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing file. Please make sure it\'s a valid Excel file.');
+            }
+        };
+        
+        reader.readAsArrayBuffer(file);
+    });
+    </script>
+</body>
+</html>

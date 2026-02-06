@@ -1,0 +1,1893 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #2c3e50;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+
+  align-items: center;
+  overflow: hidden;
+}
+
+/*game bar controller*/
+.game-container {
+  position: relative;
+  /* Anchors absolute children; add if missing */
+  height: 100%;
+  width: 6vw;
+  /* Keep narrow for left side */
+  background-color: #34495e;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  padding: 0px;
+  z-index: 9999;
+  overflow: visible;
+  /* Allows children to extend beyond */
+  align-items: stretch;
+}
+
+
+.check-section {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  border: 2px solid #34495e;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+.check-section:active {
+  background-color: #05f0cd;
+  transform: scale(0.95);
+}
+
+
+
+/* Middle Section */
+.middle-section {
+  width: 8%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-right: 0;
+}
+
+.middle-top-spacer {
+  height: 8%;
+}
+
+.middle-main-container {
+  height: 100%;
+  width: 92%;
+  background-color: #27ae60;
+  border: 0px solid #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px 0px;
+  border-radius: 5px;
+  z-index: 1;
+
+}
+
+
+
+
+.phase-indicator {
+  background: #7bcfff;
+  color: rgb(0, 0, 0);
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  border: none;
+  cursor: pointer;
+}
+
+.phase-indicator.player2 {
+  background: #ffc0e2;
+}
+
+
+
+
+.phase-indicator.active {
+  background-color: #ffffff !important;
+  /* Brighter red for active */
+  border: 2px solid #c0392b;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  transform: scale(1.2);
+}
+
+
+/* Main Section */
+.main-section {
+  width: 55%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-right: 2%;
+}
+
+.game-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border: 0px solid #000;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  font-size: 13px;
+  padding: 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Hand containers */
+.player-hand-top,
+.player-hand-bottom {
+  height: 17%;
+  width: 100vw;
+  margin-bottom: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px;
+  gap: 0px;
+
+}
+
+.player-hand-top {
+  background-color: #6f5234;
+}
+
+.player-hand-bottom {
+  background-color: #6f5234;
+  margin-bottom: 0;
+}
+
+/* UPDATED: Yu-Gi-Oh Card Styling with Image Support */
+.yugioh-card {
+  width: 25vw;
+  
+  
+  height: 100%;
+  border: 2px solid;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  background: #f4f4f4;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+
+  overflow: hidden;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  margin: 0.1vw;
+
+  user-select: none;
+  /* ← ADD THIS */
+  -webkit-user-select: none;
+  /* ← ADD THIS for Safari */
+}
+
+
+.yugioh-card.player2 {
+  transform: rotate(0deg);
+}
+
+
+.yugioh-card.monster {
+  border-color: #8B4513;
+}
+
+.yugioh-card.spell {
+  border-color: #8B4513;
+}
+
+.yugioh-card.trap {
+  border-color: #8B4513;
+}
+
+.yugioh-card.selected-attacker {
+
+
+  border: 2px solid #ff0000 !important;
+  box-shadow: 0 0 25px #ff0000 !important;
+}
+
+.yugioh-card.selected-target {
+
+
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 25px #00ff00 !important;
+}
+
+/* Face-down cards - brown overlay approach */
+.yugioh-card.face-down {
+  position: relative;
+
+}
+
+.yugioh-card.face-down::after {
+  /* content: '⬮'; */
+  content: 'FaceDown';
+  font-size: 14px;
+  font-weight: bold;
+  color: #DDBF94;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #8B4513 !important;
+  border-color: #654321 !important;
+  border-width: 10px !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 10;
+  pointer-events: none;
+  opacity: 1;
+  /* Full opacity by default */
+  transition: opacity 0.3s ease;
+}
+
+/* Peek mode - reduce opacity to see through */
+.yugioh-card.face-down.peek-active::after {
+  opacity: 0.3;
+  /* Semi-transparent, can see card underneath */
+}
+
+.card-name {
+  height: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 2vw;
+  font-weight: bold;
+  padding: 0px 0px;
+  color: white;
+}
+
+.card-name .cn-class {
+  flex: 1;
+  font: 2vw;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-name .atr-class {
+  flex: 0;
+  text-align: right;
+  font-size: 3vw;
+}
+
+.yugioh-card.monster .card-name {
+  background: linear-gradient(45deg, #8B4513, #A0522D);
+}
+
+.yugioh-card.monster .fusion {
+  background: linear-gradient(45deg, #705773, #f9a9fd);
+  white-space: nowrap;      /* Prevents text from wrapping to the next line */
+    overflow: hidden;         /* Hides overflowing text */
+    text-overflow: ellipsis;
+    font-size: 2vw;
+
+}
+
+
+.yugioh-card.monster .ritual {
+  background: linear-gradient(45deg, #0c85ff, #8fcdeb);
+   white-space: nowrap;      /* Prevents text from wrapping to the next line */
+    overflow: hidden;         /* Hides overflowing text */
+    text-overflow: ellipsis;
+    font-size: 2vw;
+    text-align: left;
+    
+    
+}
+
+
+
+
+.yugioh-card.spell .card-name {
+  background: linear-gradient(45deg, #228B22, #32CD32);
+}
+
+.yugioh-card.trap .card-name {
+  background: linear-gradient(45deg, #FF1493, #FF69B4);
+}
+
+.tr-class {
+  height: 5%;
+  background: linear-gradient(45deg, #1a1a1a, #333);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* UPDATED: Card image section with proper image display */
+.card-image {
+  height: 65%;
+  background: linear-gradient(45deg, #4a4a4a, #666);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  object-fit: fill;
+}
+
+/* NEW: Image styling within card-image section */
+.card-image img {
+
+  object-fit: fill;
+  border-radius: 2px;
+}
+
+/* Fallback for cards without images */
+.card-image:not(:has(img)) {
+  background: linear-gradient(45deg, #4a4a4a, #666);
+}
+
+.tp-class {
+  height: 5%;
+  background: linear-gradient(45deg, #1a1a1a, #333);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3px;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ak-df-class {
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial', monospace;
+  /* Ensures equal character widths */
+  font-size: 2.2vw;
+  /* 30vw ÷ 9 characters */
+  letter-spacing: 0;
+  transform: scaleX(1.67);
+  /* Stretch to fill: 30vw ÷ 18vw = 1.67 */
+  font-weight: bold;
+  overflow: hidden;
+  color: black;
+}
+
+
+
+
+
+/* Field container - allow flexible sizing */
+.field-card-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin: 2px !important;
+  transition: all 0.3s ease !important;
+
+  height: 100% !important;
+}
+
+
+
+.player2-spell-trap {
+  height: 16%;
+  width: 100vw;
+  background-color: #72072a;
+  justify-content: center;
+
+}
+
+.player2-monster {
+  height: 17%;
+  width: 100vw;
+  background: rgba(106, 125, 152, 0.3);
+  border: 0px solid #000000;
+  margin-bottom: 0px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  gap: 0px;
+  justify-content: center;
+}
+
+
+.player1-monster {
+  height: 17%;
+  width: 100vw;
+  background: rgba(106, 125, 152, 0.3);
+  border: 0px solid #000000;
+  margin-bottom: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  gap: 0;
+
+}
+
+.player1-spell-trap {
+  height: 16%;
+  width: 100vw;
+  background-color: #426fb6;
+  justify-content: center;
+
+}
+
+/* Right Section */
+.right-section {
+  width: 8%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-top-spacer {
+  height: 8%;
+}
+
+.right-main-container {
+  height: 84%;
+  background-color: #27ae60;
+  border: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  border-radius: 5px;
+}
+
+
+/* Battle Status */
+.battle-status {
+  position: fixed;
+  top: 10%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #ff0000;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  z-index: 2000;
+  display: none;
+  border: 2px solid #ff0000;
+}
+
+
+
+
+/* Bring Cards Button */
+.bring-cards-button {
+  background: #9b59b6;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 2px;
+  transition: all 0.2s;
+}
+
+
+
+/* LP Modification Popup */
+.lp-modification-popup .popup-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 400px;
+  width: 90%;
+  color: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.lp-modification-popup .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 15px;
+}
+
+.lp-modification-popup h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.lp-modification-popup .close-popup {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+
+
+.lp-modification-popup .plus-minus-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.lp-modification-popup .plus-minus-buttons button {
+  background: #34495e;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+}
+
+
+
+.lp-modification-popup .plus-minus-buttons button.active {
+  background: #e74c3c;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+}
+
+.lp-modification-popup .lp-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.lp-modification-popup .lp-buttons button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+.lp-modification-popup .lp-display {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Bring Cards Popup */
+.bring-cards-popup .popup-content {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 600px;
+  width: 90%;
+  color: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.bring-cards-popup .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 15px;
+}
+
+.bring-cards-popup h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.bring-cards-popup .close-popup {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+
+
+.bring-cards-popup .location-selectors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.bring-cards-popup .location-selectors div {
+  display: flex;
+  flex-direction: column;
+}
+
+.bring-cards-popup label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.bring-cards-popup select {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.bring-cards-popup button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+/* Card Selection Popup */
+.card-selection-popup .popup-content {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  color: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+.card-selection-popup .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 15px;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.card-selection-popup h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.card-selection-popup .close-popup {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+
+
+.card-selection-popup .card-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.card-selection-popup .selectable-card {
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 12px;
+  min-height: 100px;
+  transition: all 0.3s ease;
+  /* Smooth transitions for tint, border, and scale */
+  border-radius: 6px;
+  margin-bottom: 8px;
+  /* Space between cards for clarity */
+}
+
+.card-selection-popup .selectable-card.selected {
+  background: rgba(76, 175, 80, 0.15);
+  /* Light green tint on entire card row */
+  border-left: 4px solid #4CAF50;
+  /* Left accent bar for quick scan */
+}
+
+.card-selection-popup .selectable-card input[type="checkbox"] {
+  margin-right: 10px;
+  flex-shrink: 0;
+  position: relative;
+  /* For checkmark overlay */
+  transition: all 0.3s ease;
+}
+
+.card-selection-popup .selectable-card input[type="checkbox"]:checked {
+  border-color: #4CAF50 !important;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.6) !important;
+  /* Brighter glow */
+  background-color: rgba(76, 175, 80, 0.1) !important;
+  /* Subtle overlay on image */
+}
+
+/* Checkmark overlay on selected image */
+.card-selection-popup .selectable-card input[type="checkbox"]:checked::after {
+  content: '✓';
+  /* Unicode checkmark */
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(76, 175, 80, 0.8);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback for missing images (keep existing) */
+.card-selection-popup .selectable-card input[type="checkbox"].image-fallback {
+  background-image: none !important;
+  background-color: #4a4a4a;
+}
+
+.card-selection-popup .selectable-card input[type="checkbox"].image-fallback::before {
+  content: attr(data-type, 'UNK');
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .card-selection-popup .selectable-card input[type="checkbox"] {
+    width: 50px;
+    height: 65px;
+    /* Larger touch target */
+    margin-bottom: 5px;
+  }
+
+  .card-selection-popup .selectable-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: auto;
+    padding: 10px;
+  }
+
+  .card-selection-popup .selectable-card label {
+    margin-top: 5px;
+    max-width: 100%;
+  }
+
+  .card-selection-popup .selectable-card:active {
+    transform: scale(0.98);
+    /* Subtle press feedback */
+  }
+
+  /* Ensure checkmark is visible on small images */
+  .card-selection-popup .selectable-card input[type="checkbox"]:checked::after {
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+  }
+}
+
+
+.card-selection-popup .selectable-card.hidden {
+  display: none !important;
+}
+
+
+
+.card-selection-popup .selectable-card input[type="checkbox"] {
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.card-selection-popup .selectable-card label {
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.card-selection-popup .selection-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.card-selection-popup .selection-buttons button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+.card-selection-popup .selection-buttons button:last-child {
+  background: #95a5a6;
+}
+
+
+
+/* NEW: Field Choice Popup for face-up/face-down selection */
+.field-choice-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2200;
+}
+
+.field-choice-popup .popup-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 400px;
+  color: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.field-choice-popup .popup-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.field-choice-popup h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.field-choice-popup .choice-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.field-choice-popup button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+.field-choice-popup button:nth-child(2) {
+  background: #e67e22;
+}
+
+
+
+.field-choice-popup button:last-child {
+  background: #95a5a6;
+  padding: 10px;
+  font-size: 14px;
+}
+
+
+
+.card-modification-popup .popup-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 600px;
+  width: 90%;
+  color: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.card-modification-popup .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 15px;
+}
+
+.card-modification-popup .popup-header h3 {
+  margin: 0;
+  font-size: 24px;
+}
+
+
+
+.card-modification-popup .card-description {
+  width: 100%;
+}
+
+.card-modification-popup .card-description textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.card-modification-popup .card-description textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+
+
+
+/* Damage Animation */
+.damage-popup {
+ position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 3000;
+            animation: damageAnimation 1s ease-out forwards;
+}
+
+@keyframes damageAnimation {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Responsive adjustments for popups */
+@media (max-width: 768px) {
+  .card-modification-popup .modification-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .bring-cards-popup .location-selectors {
+    grid-template-columns: 1fr;
+  }
+
+  .card-selection-popup .card-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .field-choice-popup .popup-content {
+    max-width: 90%;
+  }
+}
+
+@keyframes vibrate {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-3px, 2px);
+  }
+
+  40% {
+    transform: translate(3px, -2px);
+  }
+
+  60% {
+    transform: translate(-3px, 2px);
+  }
+
+  80% {
+    transform: translate(3px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+.vibrate {
+  animation: vibrate 0.4s linear;
+}
+
+.simulator-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #34495e;
+  border-radius: 10px;
+  padding: 15px;
+  width: 300px;
+  height: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  z-index: 3000;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.simulator-popup.hidden {
+  display: none;
+}
+
+.simulator-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.simulator-option {
+  margin: 5px;
+  padding: 8px 15px;
+  background-color: #27ae60;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+
+
+.simulator-display {
+  font-size: 48px;
+  font-weight: bold;
+  margin: 10px 0;
+  width: 100px;
+  text-align: center;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 10px 0;
+}
+
+.stop-button {
+  padding: 8px 20px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.stop-button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.close-popup {
+  background-color: #c0392b;
+  position: relative;
+  top: 5px;
+  right: 7px;
+  font-size: 14px;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: white;
+  cursor: pointer;
+}
+
+.fullscreen-btn {
+  background: #34495e;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 7px;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 4px 0;
+  transition: background 0.15s;
+}
+
+
+/* Fullscreen styles for the entire document */
+:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a1a1a;
+  /* Optional: change bg color in fullscreen */
+  overflow: hidden;
+}
+
+/* Style the fullscreen button */
+.fullscreen-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  user-select: none;
+  touch-action: manipulation;
+  /* for better tap response */
+}
+
+.fullscreen-button:active {
+  background-color: #004a99;
+}
+
+.game-controls-bar {
+  position: absolute !important;
+  /* Exits flex flow, positions independently */
+  top: 0 !important;
+  /* Aligns to container top */
+  right: -8vw !important;
+  /* Starts at container edge (6vw), extends 50vw rightward into game; adjust offset if needed */
+  width: 15vw !important;
+  /* Half viewport width for overlay coverage */
+  height: 100vh !important;
+  /* Full height to match viewport */
+  background: rgba(39, 174, 96, 0.5) !important;
+  /* Semi-transparent green base */
+  border-radius: 8px !important;
+  border: 2px solid rgba(0, 0, 0, 0.8) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  /* Vertically centers buttons */
+  padding: 0 !important;
+  gap: 0.5vh !important;
+  overflow: visible !important;
+  /* Buttons can extend if needed */
+  /* Retain existing button styles; no change */
+}
+
+
+.player2-deck-section,
+.player1-deck-section {
+  text-align: center;
+  color: white;
+  border-radius: 5px;
+  padding: 0px;
+  width: 100%;
+}
+
+#player2Decksection {
+  background-color: #dc2626;
+}
+
+#player1Decksection {
+  background-color: #2563eb;
+}
+
+
+.player2-deck-label,
+.player1-deck-label {
+  font-size: 12px;
+  margin-bottom: 0px;
+}
+
+.player2-deck-count,
+.player1-deck-count {
+  font-size: 24px;
+  font-weight: bold;
+  background: #2c3e50;
+  border-radius: 3px;
+  padding: 0px 0px;
+  color: white;
+  margin-bottom: 2px;
+}
+
+
+
+
+
+.simulator-btn {
+  width: 100%;
+  /* Full bar width, like other buttons */
+  min-height: 40px;
+  /* Fixed height for consistency (adjust if bar squeezes) */
+  background: #34495e !important;
+  /* Dark blue background */
+  color: #fff !important;
+  /* White text */
+  font-weight: bold;
+  font-size: 18px;
+  /* "S" or text size */
+  border: 1px solid #2c3e50;
+  /* Dark border */
+  border-radius: 5px;
+  /* Rounded */
+  padding: 8px 4px;
+  /* Internal space (removes fixed 1vh/1vw) */
+  margin: 0 0 2px 0;
+  /* Bottom spacing */
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Centers "S" */
+  box-sizing: border-box;
+  /* Includes padding in width */
+}
+
+
+
+.simulator-btn:active {
+  background: #27ae60 !important;
+  /* Green on click, like active mods */
+  transform: scale(0.98);
+}
+
+
+
+
+.bring-cards-button {
+  width: 100%;
+  background: #c0392b;
+  color: white;
+  border-radius: 5px;
+  font-size: 15px;
+  padding: 8px;
+  border: none;
+  font-weight: bold;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+
+.lp-display {
+  background: #1a1a1a;
+  color: white;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  border-radius: 5px;
+  margin-bottom: 0px;
+}
+
+.lp-display.player2 {
+  border: 3px solid #e53935;
+}
+
+.lp-display.player1 {
+  border: 3px solid #7775ff;
+}
+
+.graveyard-section {
+  width: 100%;
+  text-align: center;
+}
+
+.graveyard-label {
+  font-size: 12px;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.graveyard-count {
+  font-size: 24px;
+  font-weight: bold;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 4px auto;
+  border: 2px solid #34495e;
+}
+
+.check-section {
+  width: 100%;
+  background: #1a1a1a;
+  color: white;
+  padding: 0px;
+  border-radius: 5px;
+  font-size: 19px;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid #34495e;
+  margin-bottom: 0px;
+  cursor: pointer;
+}
+
+.big-card-display .yugioh-card {
+  width: 350px;
+  height: 500px;
+  font-size: 12px;
+  /* Optionally increase image and text sizes within .yugioh-card for the popup */
+}
+
+
+
+/* All monster cards on field: same size */
+.monster-field-container .yugioh-card {
+  width: 50% !important;
+  height: 100% !important;
+
+  position: relative;
+}
+
+/* Defense position indicator - "D" badge */
+.defense-indicator {
+  position: absolute;
+  background-color: rgba(52, 152, 219, 0.9);
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 2px solid white;
+  z-index: 11;
+  pointer-events: none;
+  border-radius: 50%;
+  width: 100%;
+}
+
+
+/* Destroyed indicator - "X" or "💀" badge for destroyed monsters */
+.destroyed-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 0, 0, 0.95);
+  color: white;
+  font-weight: bold;
+  font-size: 48px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 3px solid #ff0000;
+  z-index: 9;
+  pointer-events: none;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  animation: destroyPulse 1s infinite;
+
+}
+
+@keyframes destroyPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Optional: dim the destroyed card */
+.yugioh-card.destroyed {
+  opacity: 0.6;
+  filter: grayscale(50%);
+}
+
+
+
+
+
+
+.card-selection-popup .filter-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.card-selection-popup .filter-btn {
+  background: rgba(52, 152, 219, 0.7);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+.card-selection-popup .filter-btn.active {
+  background: rgba(231, 76, 60, 0.9);
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+.card-selection-popup .selectable-card.hidden {
+  display: none;
+}
+
+/* Transfer Direction Buttons */
+.transfer-btn {
+  background-color: #1a1a1a;
+  color: white;
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 20px;
+  /* Larger for triangle visibility */
+  font-weight: bold;
+  margin-bottom: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  /* Prevent text selection on mobile */
+}
+
+
+
+.transfer-btn.active {
+  background-color: #803300;
+  transform: scale(1.1);
+}
+
+/* Mobile: Larger touch targets */
+@media (max-width: 768px) {
+  .transfer-btn {
+    padding: 12px;
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .transfer-btn.active {
+    transform: scale(1.15);
+  }
+}
+
+/* Modifier Buttons (if not already present) */
+.mod-btn {
+  background-color: #1a1a1a;
+  color: white;
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 14px;
+  /* Smaller than transfer for fit */
+  font-weight: bold;
+  margin-bottom: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+
+
+
+.mod-btn.active {
+  background-color: #803300;
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .mod-btn {
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  
+}
+
+
+
+.mod-btn {
+  background-color: #1a1a1a;
+  color: white;
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.mod-btn.active {
+  background-color: #803300;
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .mod-btn {
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .mod-btn.active {
+    transform: scale(1.15);
+    background-color: #803300;
+  }
+}
+
+.close-popups-btn {
+  background-color: #e74c3c !important;
+  color: white !important;
+  width: 100% !important;
+  padding: 8px !important;
+  border-radius: 5px !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+  margin-bottom: 2px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.main-section.player2-view {
+  flex-direction: column-reverse !important;
+}
+
+.game-controls-bar.player2-view {
+  flex-direction: column-reverse !important;
+}
+
+.yugioh-card.opponent-facedown {
+  background: #8B4513 !important;
+  border-color: #654321 !important;
+}
+
+.yugioh-card.opponent-facedown * {
+  visibility: hidden !important;
+  /* Hide all content including emoji */
+}
+
+.yugioh-card.opponent-facedown::before {
+  content: 'FACE-DOWN';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  font-weight: bold;
+  color: #DDBF94;
+}
+
+
+
+.damage-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 0, 0, 0.9);
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 3000;
+  animation: damageAnimation 1s ease-out forwards;
+}
+
+@keyframes damageAnimation {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+
+
+.check-section.active {
+  background-color: #803300;
+  border: 2px solid #229954 !important;
+  
+  transform: scale(1.05) !important;
+
+}
+
+.yugioh-card.selected-attacker::before {
+  content: '⚔️';
+  position: absolute;
+  right: 0;
+  font-size: 25px;
+  z-index: 10;
+  animation: pulse 1s infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+}
+
+.yugioh-card.selected-target::before {
+  content: '🛡️';
+  position: absolute;
+  right: 0;
+  font-size: 25px;
+  z-index: 100;
+  animation: pulse 1s infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.8));
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.0);
+  }
+}
+
+/* Card Value Div */
+.card-value-div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20%;
+    background: transparent;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s;
+}
+
+.card-value-div:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.card-value-div.value-active {
+    background: rgba(52, 152, 219, 0.4);
+    border: 2px solid #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
+}
+
+.reconectNotif {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #27ae60;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 99999;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        animation: slideDown 0.3s ease-out;
+
+}
+
+@keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+.successMsg {
+
+  position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #27ae60;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    z-index: 99999;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.reconectOverlay {
+ position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+                color: white;
+                font-family: Arial, sans-serif;
+
+
+}
+
+.diceResult {
+ position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 200px;
+        font-weight: bold;
+        color: #3498db;
+        z-index: 3000;
+        font-family: Arial, sans-serif;
+        text-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+        pointer-events: none;
+
+}
+
+.restartBtn {
+  padding: 12px 25px;
+                    background: #95a5a6;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+
+
+}
+
+.popupText {
+ position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+
+}
+
+.card-imageStyle {
+
+        object-fit: fill;
+        border-radius: 2px;
+        height: 100%;
+        width: 100%;
+
+}
+

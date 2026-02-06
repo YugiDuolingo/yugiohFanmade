@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yu-Gi-Oh Deck Display</title>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: #34495e;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    /* File upload section */
+    #file-upload-section {
+      background: #2c3e50;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 800px;
+      text-align: center;
+      border: 2px solid #1a252f;
+    }
+    
+    #file-upload-section h2 {
+      color: #ecf0f1;
+      margin-bottom: 10px;
+    }
+    
+    #file-upload-section p {
+      color: #bdc3c7;
+      margin-bottom: 15px;
+    }
+    
+    #deck-file {
+      background: #ecf0f1;
+      padding: 8px;
+      border-radius: 5px;
+      border: 2px solid #7f8c8d;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 10px;
+    }
+    
+    #upload-button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+    
+    #upload-button:hover {
+      background: #c0392b;
+    }
+    
+    .file-info {
+      margin-top: 10px;
+      color: #95a5a6;
+      font-style: italic;
+    }
+    
+    .error-message {
+      color: #e74c3c;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    
+    .success-message {
+      color: #2ecc71;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    
+    /* Deck display section */
+    #deck-display {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+    }
+    
+    /* Big card display */
+    #big-card-display {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      background: #2c3e50;
+      padding: 25px;
+      border-radius: 15px;
+      border: 3px solid #1a252f;
+      min-height: 380px;
+    }
+    
+    #big-card-container {
+      flex-shrink: 0;
+    }
+    
+    .big-card {
+      width: 250px;
+      height: 350px;
+      background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+      border-radius: 12px;
+      border: 4px solid #f1c40f;
+      box-shadow: 0 0 25px 5px rgba(241, 196, 15, 0.6);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    /* Card name with colored backgrounds */
+    .big-card-name {
+      font-size: 1.6em;
+      font-weight: bold;
+      padding: 10px 15px 8px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: center;
+      color: white;
+      border-bottom: 2px solid #444;
+    }
+    
+    .big-card-name.monster {
+      background: #8B4513; /* Brown for monsters */
+    }
+    
+    .big-card-name.spell {
+      background: #27ae60; /* Green for spells */
+    }
+    
+    .big-card-name.trap {
+      background: #e84393; /* Pink for traps */
+    }
+    
+    /* Stars section */
+    .big-card-stars {
+      font-size: 1.3em;
+      color: gold;
+      letter-spacing: 2px;
+      padding: 6px 15px 4px;
+      text-align: center;
+      background: #222;
+      border-bottom: 1px solid #444;
+    }
+    
+    /* Image container with object-fit: fill */
+    .big-card-image-container {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+    }
+    
+    .big-card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: fill; /* This will stretch to fill container */
+      display: block;
+    }
+    
+    /* Card type */
+    .big-card-type {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      padding: 8px;
+      background: #222;
+      color: #f1c40f;
+      border-top: 2px solid #444;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    
+    /* ATK/DEF section */
+    .big-card-atkdef {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      padding: 8px;
+      background: #222;
+      color: #ecf0f1;
+      border-top: 1px solid #444;
+    }
+    
+    /* Card description area */
+    #card-description {
+      flex: 1;
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(170, 0, 0, 0.7);
+      color: #eee;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      user-select: none;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    
+    /* Thumbnail grid section */
+    #thumbnail-navigation {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    #thumbnails-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 60px);
+      grid-gap: 8px;
+    }
+    
+    /* Grid images with object-fit: fill */
+    .grid-image-item {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .grid-image-item:hover {
+      transform: scale(1.05);
+      border-color: #3498db;
+    }
+    
+    .grid-image-item.selected {
+      border: 3px solid #f1c40f;
+      box-shadow: 0 0 15px rgba(241, 196, 15, 0.8);
+      transform: scale(1.05);
+    }
+    
+    .grid-image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill; /* This will stretch to fill container */
+      display: block;
+    }
+    
+    /* Type indicator border for grid images */
+    .grid-image-item.monster {
+      border-color: #8B4513;
+    }
+    
+    .grid-image-item.spell {
+      border-color: #27ae60;
+    }
+    
+    .grid-image-item.trap {
+      border-color: #e84393;
+    }
+    
+    .grid-image-item.selected.monster {
+      border-color: #f1c40f;
+    }
+    
+    .grid-image-item.selected.spell {
+      border-color: #f1c40f;
+    }
+    
+    .grid-image-item.selected.trap {
+      border-color: #f1c40f;
+    }
+    
+    /* Navigation buttons */
+    .nav-button {
+      background: #2c3e50;
+      border: 2px solid #1a252f;
+      color: white;
+      font-weight: bold;
+      font-size: 22px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    
+    .nav-button:hover {
+      background: #e67e22;
+    }
+    
+    /* Pagination */
+    #pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 15px;
+      user-select: none;
+    }
+    
+    #page-info {
+      font-size: 1.1em;
+      color: #ecf0f1;
+      background: #2c3e50;
+      padding: 8px 15px;
+      border-radius: 5px;
+      border: 1px solid #7f8c8d;
+      min-width: 200px;
+      text-align: center;
+    }
+    
+    /* No image placeholder */
+    .no-image {
+      width: 100%;
+      height: 100%;
+      background: #7f8c8d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2c3e50;
+      font-weight: bold;
+      font-size: 0.8em;
+      text-align: center;
+    }
+    
+    /* Error placeholder */
+    .error-image {
+      width: 100%;
+      height: 100%;
+      background: #c0392b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.8em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- File Upload Section -->
+  <div id="file-upload-section">
+    <h2>Upload Yu-Gi-Oh Deck</h2>
+    
+    <p>Upload an Excel (.xlsx, .xls) or OpenOffice (.ods) file</p>
+    <h2 Save page on your device to view your deck </h2>
+    <p>Save the page to your device to view the cards with their respective images , The folders for images and audio must be called "file name images"
+       & "file name audio" and be in the same folder as the html page</p>
+
+    <input type="file" id="deck-file" accept=".xlsx,.xls,.ods">
+    <br>
+    <button id="upload-button">Load Deck</button>
+    <div id="file-status" class="file-info"></div>
+  </div>
+
+  <!-- Deck Display Section (hidden until file is uploaded) -->
+  <div id="deck-display">
+    
+    <!-- Big Card Display -->
+    <div id="big-card-display">
+      <div id="big-card-container">
+        <!-- Big card will be inserted here dynamically -->
+      </div>
+      <div id="card-description">
+        Card description will appear here
+      </div>
+    </div>
+
+    <!-- Thumbnail Navigation -->
+    <div id="thumbnail-navigation">
+      <button class="nav-button" id="cursor-left" title="Move Cursor Left">&#x25c0;</button>
+      <div id="thumbnails-grid"></div>
+      <button class="nav-button" id="cursor-right" title="Move Cursor Right">&#x25b6;</button>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination">
+      <button class="nav-button" id="page-prev" title="Previous Page">&#x25c4;</button>
+      <span id="page-info">Page 1 / 1</span>
+      <button class="nav-button" id="page-next" title="Next Page">&#x25ba;</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let allCards = [];
+    let deckBaseName = "";
+    const THUMBNAILS_PER_PAGE = 18;
+    let currentPage = 0;
+    let currentCursor = 0;
+
+    // DOM elements
+    const deckDisplay = document.getElementById('deck-display');
+    const thumbnailsGrid = document.getElementById('thumbnails-grid');
+    const pageInfo = document.getElementById('page-info');
+    const fileInput = document.getElementById('deck-file');
+    const uploadButton = document.getElementById('upload-button');
+    const fileStatus = document.getElementById('file-status');
+
+    // Function to extract base filename without extension
+    function getBaseFilename(filename) {
+      return filename.replace(/\.[^/.]+$/, "");
+    }
+
+    // Function to handle file upload and conversion
+    function handleFileUpload(file) {
+      fileStatus.textContent = `Processing ${file.name}...`;
+      fileStatus.className = "file-info";
+      
+      deckBaseName = getBaseFilename(file.name);
+      console.log("Deck base name:", deckBaseName);
+      
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          let workbook;
+          const data = e.target.result;
+          
+          // Check file type and read accordingly
+          if (file.name.toLowerCase().endsWith('.ods')) {
+            workbook = XLSX.read(data, { type: 'binary' });
+          } else {
+            const arrayData = new Uint8Array(data);
+            workbook = XLSX.read(arrayData, { type: 'array' });
+          }
+          
+          // Get the first sheet and convert to JSON array
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          allCards = XLSX.utils.sheet_to_json(worksheet);
+          
+          console.log(`Loaded ${allCards.length} cards from ${file.name}`);
+          
+          fileStatus.textContent = `Successfully loaded ${allCards.length} cards from ${deckBaseName}`;
+          fileStatus.className = "success-message";
+          
+          // Show the deck display
+          deckDisplay.style.display = "block";
+          
+          // Reset pagination and cursor
+          currentPage = 0;
+          currentCursor = 0;
+          
+          // Update the display
+          updateDisplay();
+          
+        } catch (error) {
+          console.error("Error processing file:", error);
+          fileStatus.textContent = `Error processing file: ${error.message}`;
+          fileStatus.className = "error-message";
+          allCards = [];
+          deckDisplay.style.display = "none";
+        }
+      };
+      
+      reader.onerror = function() {
+        fileStatus.textContent = "Error reading file";
+        fileStatus.className = "error-message";
+        allCards = [];
+        deckDisplay.style.display = "none";
+      };
+      
+      // Read the file based on type
+      if (file.name.toLowerCase().endsWith('.ods')) {
+        reader.readAsBinaryString(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    // Event listeners for file upload
+    uploadButton.addEventListener('click', function() {
+      if (fileInput.files.length === 0) {
+        fileStatus.textContent = "Please select a file first";
+        fileStatus.className = "error-message";
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      handleFileUpload(file);
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileStatus.textContent = `Selected: ${file.name}`;
+        fileStatus.className = "file-info";
+      }
+    });
+
+    // Function to get card type (monster/spell/trap)
+    function getCardType(card) {
+      if (!card.atr) return "monster";
+      const atrLower = card.atr.toLowerCase();
+      if (atrLower === "spell") return "spell";
+      if (atrLower === "trap") return "trap";
+      return "monster";
+    }
+
+    // Function to create big card element
+    function createBigCard(card) {
+      const cardType = getCardType(card);
+      
+      // Create main card container
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'big-card';
+      
+      // Create card name with colored background
+      const nameDiv = document.createElement('div');
+      nameDiv.className = `big-card-name ${cardType}`;
+      nameDiv.textContent = card.cn || "Unknown";
+      cardDiv.appendChild(nameDiv);
+      
+      // Add stars for monster cards
+      if (cardType === 'monster' && card.tr) {
+        const starsDiv = document.createElement('div');
+        starsDiv.className = 'big-card-stars';
+        const starsCount = parseInt(card.tr, 10);
+        if (!isNaN(starsCount) && starsCount > 0) {
+          starsDiv.textContent = '★'.repeat(starsCount);
+        }
+        cardDiv.appendChild(starsDiv);
+      }
+      
+      // Create image container
+      const imageContainer = document.createElement('div');
+      imageContainer.className = 'big-card-image-container';
+      
+      if (card.cn && deckBaseName) {
+        const img = document.createElement('img');
+        img.className = 'big-card-image';
+        img.src = `${deckBaseName} images/${card.cn}.jpg`;
+        img.alt = card.cn || 'Card image';
+        img.onerror = function() {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-image';
+          errorDiv.textContent = 'NO IMAGE';
+          imageContainer.appendChild(errorDiv);
+        };
+        imageContainer.appendChild(img);
+      } else {
+        const noImageDiv = document.createElement('div');
+        noImageDiv.className = 'no-image';
+        noImageDiv.textContent = 'NO IMAGE';
+        imageContainer.appendChild(noImageDiv);
+      }
+      
+      cardDiv.appendChild(imageContainer);
+      
+      // Add card type
+      const typeDiv = document.createElement('div');
+      typeDiv.className = 'big-card-type';
+      typeDiv.textContent = card.tp ? card.tp.toUpperCase() : cardType.toUpperCase();
+      cardDiv.appendChild(typeDiv);
+      
+      // Add ATK/DEF for monster cards
+      if (cardType === 'monster') {
+        const atkdefDiv = document.createElement('div');
+        atkdefDiv.className = 'big-card-atkdef';
+        atkdefDiv.textContent = `ATK: ${card.ak || 0} / DEF: ${card.df || 0}`;
+        cardDiv.appendChild(atkdefDiv);
+      }
+      
+      return cardDiv;
+    }
+
+    // Function to create grid image item
+    function createGridImageItem(card, index, isSelected = false) {
+      const cardType = getCardType(card);
+      const itemDiv = document.createElement('div');
+      itemDiv.className = `grid-image-item ${cardType} ${isSelected ? 'selected' : ''}`;
+      itemDiv.dataset.index = index;
+      
+      if (card.cn && deckBaseName) {
+        const img = document.createElement('img');
+        img.src = `${deckBaseName} images/${card.cn}.jpg`;
+        img.alt = card.cn;
+        img.onerror = function() {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-image';
+          errorDiv.textContent = 'NO IMG';
+          itemDiv.appendChild(errorDiv);
+        };
+        itemDiv.appendChild(img);
+      } else {
+        const noImageDiv = document.createElement('div');
+        noImageDiv.className = 'no-image';
+        noImageDiv.textContent = 'NO IMG';
+        itemDiv.appendChild(noImageDiv);
+      }
+      
+      itemDiv.addEventListener('click', function() {
+        const clickedIndex = parseInt(this.dataset.index);
+        currentPage = Math.floor(clickedIndex / THUMBNAILS_PER_PAGE);
+        currentCursor = clickedIndex % THUMBNAILS_PER_PAGE;
+        updateDisplay();
+      });
+      
+      return itemDiv;
+    }
+
+    // Function to play card audio
+    function playCardAudio(card) {
+      if (!card.cn || !deckBaseName) return;
+      
+      try {
+        const audio = new Audio(`${deckBaseName} audio/${card.cn}.mp3`);
+        audio.volume = 0.6;
+        audio.play().catch((err) => {
+          console.log(`Audio not found or couldn't play: ${audio.src}`);
+        });
+      } catch(e) {
+        console.log("Audio error:", e);
+      }
+    }
+
+    // Function to display big card
+    function displayBigCard(card) {
+      const bigCardContainer = document.getElementById('big-card-container');
+      const cardDescArea = document.getElementById('card-description');
+      
+      // Clear and create new big card
+      bigCardContainer.innerHTML = '';
+      const bigCard = createBigCard(card);
+      bigCardContainer.appendChild(bigCard);
+      
+      // Update description
+      cardDescArea.textContent = card.desc || "No description available.";
+      
+      // Play audio
+      playCardAudio(card);
+    }
+
+    // Function to load thumbnails grid
+    function loadThumbnailsGrid() {
+      thumbnailsGrid.innerHTML = '';
+      
+      if (allCards.length === 0) return;
+      
+      const start = currentPage * THUMBNAILS_PER_PAGE;
+      const end = Math.min(start + THUMBNAILS_PER_PAGE, allCards.length);
+      
+      for (let i = start; i < end; i++) {
+        const card = allCards[i];
+        const isSelected = (i === start + currentCursor);
+        const gridItem = createGridImageItem(card, i, isSelected);
+        thumbnailsGrid.appendChild(gridItem);
+      }
+      
+      updatePageInfo();
+    }
+
+    // Function to update page info
+    function updatePageInfo() {
+      if (allCards.length === 0) {
+        pageInfo.textContent = "No cards loaded";
+        return;
+      }
+      
+      const totalPages = Math.ceil(allCards.length / THUMBNAILS_PER_PAGE);
+      pageInfo.textContent = `Page ${currentPage + 1} / ${totalPages} (${allCards.length} cards)`;
+    }
+
+    // Function to update display
+    function updateDisplay() {
+      loadThumbnailsGrid();
+      
+      if (allCards.length > 0) {
+        const index = currentPage * THUMBNAILS_PER_PAGE + currentCursor;
+        if (index < allCards.length) {
+          displayBigCard(allCards[index]);
+        }
+      }
+    }
+
+    // Navigation functions
+    function moveCursorLeft() {
+      if (allCards.length === 0) return;
+      
+      if (currentCursor > 0) {
+        currentCursor--;
+      } else if (currentPage > 0) {
+        currentPage--;
+        currentCursor = THUMBNAILS_PER_PAGE - 1;
+      }
+      updateDisplay();
+    }
+
+    function moveCursorRight() {
+      if (allCards.length === 0) return;
+      
+      const maxIndex = allCards.length - 1;
+      const currentIndex = currentPage * THUMBNAILS_PER_PAGE + currentCursor;
+      
+      if (currentIndex < maxIndex) {
+        if (currentCursor < THUMBNAILS_PER_PAGE - 1) {
+          currentCursor++;
+        } else {
+          currentCursor = 0;
+          currentPage++;
+        }
+      }
+      updateDisplay();
+    }
+
+    function prevPage() {
+      if (allCards.length === 0) return;
+      
+      if (currentPage > 0) {
+        currentPage--;
+        currentCursor = 0;
+        updateDisplay();
+      }
+    }
+
+    function nextPage() {
+      if (allCards.length === 0) return;
+      
+      const maxPage = Math.ceil(allCards.length / THUMBNAILS_PER_PAGE) - 1;
+      if (currentPage < maxPage) {
+        currentPage++;
+        currentCursor = 0;
+        updateDisplay();
+      }
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', e => {
+      if (allCards.length === 0) return;
+      
+      switch(e.key) {
+        case "ArrowLeft":
+          moveCursorLeft();
+          e.preventDefault();
+          break;
+        case "ArrowRight":
+          moveCursorRight();
+          e.preventDefault();
+          break;
+        case "ArrowUp":
+          prevPage();
+          e.preventDefault();
+          break;
+        case "ArrowDown":
+          nextPage();
+          e.preventDefault();
+          break;
+      }
+    });
+
+    // Button event listeners
+    document.getElementById('cursor-left').addEventListener('click', moveCursorLeft);
+    document.getElementById('cursor-right').addEventListener('click', moveCursorRight);
+    document.getElementById('page-prev').addEventListener('click', prevPage);
+    document.getElementById('page-next').addEventListener('click', nextPage);
+
+    // Initial state
+    deckDisplay.style.display = "none";
+  </script>
+
+</body>
+</html>

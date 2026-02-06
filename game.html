@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YuGiOh! Power Of Chaos</title>
+</head>
+
+<body>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Battle Status Display -->
+    <div class="battle-status" id="battleStatus">
+        <div id="battleMessage">Battle in progress...</div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <!-- Main Play Area (Center) -->
+        <div class="main-play-area">
+           
+        </div>
+
+        <!-- Right Control Bar -->
+        <div class="game-controls-bar">
+
+            <div class="player2-deck-section" id="player2Decksection">
+                <div class="player2-deck-label">Deck 2</div>
+                <div class="player2-deck-count" id="player2DeckCount">40</div>
+            </div>
+            <div class="lp-display player2">
+                <span id="player2LP">8000</span>
+            </div>
+            <button id="transfer-p2-btn" class="transfer-btn p2" title="Transfer to Player 2 Hand (Top)">H2</button>
+
+            <div class="main-playsection">
+                <button class="phase-indicator" id="mp-button">MP</button>
+                <button class="phase-indicator" id="bp-button">BP</button>
+                <button class="phase-indicator" id="ep-button">EP</button>
+                <button id="simulator-button" class="simulator-btn">S</button>
+                <button id="fullscreenBtn" class="fullscreen-button">🗖</button>
+                <button id="bringcardsbutton" class="bring-cards-button">⚡</button>
+                <button id="close-popups-btn" class="close-popups-btn" title="Close all popups">✖</button>
+                <button class="check-section">🔎</button>
+                <button id="peek-btn" class="mod-btn">👁️</button>
+                <button id="atk-mod-btn" class="mod-btn" data-stat="atk">+100 ATK</button>
+                <button id="def-mod-btn" class="mod-btn" data-stat="def">+100 DEF</button>
+
+
+            </div>
+
+
+            <!-- Transfer Direction Buttons -->
+
+            <button id="transfer-p1-btn" class="transfer-btn p1" title="Transfer to Player 1 Hand (Bottom)">H1</button>
+
+
+            <div class="lp-display player1">
+                <span id="player1LP">8000</span>
+            </div>
+
+
+            <div class="player1-deck-section" id="player1Decksection">
+                <div class="player1-deck-label">Deck 1</div>
+                <div class="player1-deck-count" id="player1DeckCount">40</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Main Section - Game Field -->
+    <div class="main-section">
+        <div class="game-field-row player-hand-top" id="player2HandTop">
+            <!-- Player 2 hand cards will appear here -->
+        </div>
+        <div class="game-field-row player2-spell-trap" id="player2SpellTrapField">
+            <!-- Player 2 spell/trap field cards will appear here -->
+        </div>
+        <div class="game-field-row player2-monster" id="player2MonsterField">
+            <!-- Player 2 monster field cards will appear here -->
+        </div>
+        <div class="game-field-row player1-monster" id="player1MonsterField">
+            <!-- Player 1 monster field cards will appear here -->
+        </div>
+        <div class="game-field-row player1-spell-trap" id="player1SpellTrapField">
+            <!-- Player 1 spell/trap field cards will appear here -->
+        </div>
+        <div class="game-field-row player-hand-bottom" id="player1HandBottom">
+            <!-- Player 1 hand cards will appear here -->
+        </div>
+    </div>
+   
+
+    <!-- Scripts at the very end -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- IndexedDB functions -->
+    <script>
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('YuGiOhMediaStorage', 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    console.log('✅ IndexedDB opened successfully');
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('audio')) {
+                        db.createObjectStore('audio', { keyPath: 'name' });
+                    }
+                    if (!db.objectStoreNames.contains('images')) {
+                        db.createObjectStore('images', { keyPath: 'name' });
+                    }
+                };
+            });
+        }
+
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function storeFilesInDB(files, storeName) {
+            if (!db) await initDB();
+
+            // Step 1: Load existing files from IndexedDB
+            const existingFiles = await new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    const files = request.result || [];
+                    const fileMap = {};
+                    files.forEach(file => {
+                        fileMap[file.name] = file.data;
+                    });
+                    resolve(fileMap);
+                };
+
+                request.onerror = () => reject(request.error);
+            });
+
+            console.log(`📦 Found ${Object.keys(existingFiles).length} existing files in ${storeName}`);
+
+            // Step 2: Convert new files to base64
+            const newFileData = [];
+            for (const file of files) {
+                try {
+                    const base64 = await fileToBase64(file);
+                    newFileData.push({ name: file.name, data: base64 });
+                    console.log(`Converted: ${file.name}`);
+                } catch (err) {
+                    console.error(`Failed to convert ${file.name}:`, err);
+                }
+            }
+
+            // Step 3: Merge existing + new files (SKIP duplicates instead of replacing)
+            const mergedFiles = { ...existingFiles };
+            let newCount = 0;
+            let skippedCount = 0;
+
+            newFileData.forEach(file => {
+                if (!mergedFiles[file.name]) {  // ← Only add if doesn't exist
+                    mergedFiles[file.name] = file.data;
+                    newCount++;
+                    console.log(`➕ Adding: ${file.name}`);
+                } else {
+                    skippedCount++;
+                    console.log(`⏭️ Skipping (already exists): ${file.name}`);
+                }
+            });
+
+            // Step 4: Store merged files in ONE transaction
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+
+                // Clear and repopulate with merged data
+                store.clear();
+
+                let count = 0;
+                for (const [name, data] of Object.entries(mergedFiles)) {
+                    try {
+                        store.put({ name, data });
+                        count++;
+                    } catch (err) {
+                        console.error(`Failed to store ${name}:`, err);
+                    }
+                }
+
+                transaction.oncomplete = () => {
+                    console.log(`✅ Stored ${count} total files (${newCount} new, ${skippedCount} skipped)`);
+                    resolve(count);
+                };
+
+                transaction.onerror = () => reject(transaction.error);
+            });
+        }
+
+        async function loadFromIndexedDB() {
+            if (!db) await initDB();
+
+            return new Promise((resolve, reject) => {
+                try {
+                    const audioTransaction = db.transaction(['audio'], 'readonly');
+                    const audioStore = audioTransaction.objectStore('audio');
+                    const audioRequest = audioStore.getAll();
+
+                    audioRequest.onsuccess = () => {
+                        const audioFiles = audioRequest.result || [];
+                        const audioMap = {};
+                        audioFiles.forEach(file => {
+                            audioMap[file.name] = file.data;
+                        });
+                        window.CARD_AUDIO_MAP = audioMap;
+                        console.log('✅ Loaded audio from IndexedDB:', Object.keys(audioMap).length);
+                    };
+
+                    const imageTransaction = db.transaction(['images'], 'readonly');
+                    const imageStore = imageTransaction.objectStore('images');
+                    const imageRequest = imageStore.getAll();
+
+                    imageRequest.onsuccess = () => {
+                        const imageFiles = imageRequest.result || [];
+                        const imageMap = {};
+                        imageFiles.forEach(file => {
+                            imageMap[file.name] = file.data;
+                        });
+                        window.CARD_IMAGE_MAP = imageMap;
+                        console.log('✅ Loaded images from IndexedDB:', Object.keys(imageMap).length);
+
+                        resolve({
+                            audioCount: Object.keys(window.CARD_AUDIO_MAP || {}).length,
+                            imageCount: Object.keys(window.CARD_IMAGE_MAP || {}).length
+                        });
+                    };
+                } catch (err) {
+                    console.error('Error loading from IndexedDB:', err);
+                    resolve({ audioCount: 0, imageCount: 0 });
+                }
+            });
+        }
+
+        async function clearMediaStorage() {
+            if (!db) await initDB();
+
+            const audioTransaction = db.transaction(['audio'], 'readwrite');
+            audioTransaction.objectStore('audio').clear();
+
+            const imageTransaction = db.transaction(['images'], 'readwrite');
+            imageTransaction.objectStore('images').clear();
+
+            console.log('🗑️ Cleared all media from IndexedDB');
+        }
+
+        // Make functions global so game.js can access them
+        window.initDB = initDB;
+        window.loadFromIndexedDB = loadFromIndexedDB;
+        window.storeFilesInDB = storeFilesInDB;
+        window.clearMediaStorage = clearMediaStorage;
+
+        // Initialize immediately
+        initDB().then(() => {
+            console.log('✅ IndexedDB ready');
+        }).catch(err => {
+            console.error('❌ IndexedDB init failed:', err);
+        });
+
+        // Fullscreen functionality
+        document.getElementById('fullscreenBtn').addEventListener('click', () => {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(err => {
+                        console.error(`Failed to enable fullscreen: ${err.message}`);
+                    });
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        });
+
+
+    </script>
+
+    <!-- game.js loads AFTER -->
+    <script src="game.js"></script>
+
+</body>
+
+</html>

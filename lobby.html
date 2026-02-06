@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Yu-Gi-Oh Online</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px
+    }
+
+    .container {
+      background: #2a2a2a;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 600px;
+      width: 100%;
+      border: 2px solid #444
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #4a9eff;
+      font-size: 24px
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 14px
+    }
+
+    textarea {
+      height: 120px;
+      font-family: monospace;
+      resize: vertical
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px
+    }
+
+    .create {
+      background: #4a9eff;
+      color: #fff
+    }
+
+    .join {
+      background: #27ae60;
+      color: #fff
+    }
+
+    .join2 {
+      background: #720422;
+      color: #fff
+    }
+
+
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px)
+    }
+
+    button:active {
+      transform: translateY(0)
+    }
+
+    .info {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px
+    }
+
+    .game-link {
+      display: inline-block;
+      margin: 10px 20px 10px 0;
+      padding: 10px 15px;
+      background: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎴 Yu-Gi-Oh Online</h1>
+    <a href="Createdeck.html" class="game-link" target="_blank">Create Your Deck</a>
+    <a href="deckCheck.html" class="game-link" target="_blank">Deck Check.html</a>
+
+    <label>Room Name</label>
+    <input id="room" type="text" >
+
+    <label>Password (optional)</label>
+    <input id="password" type="password" placeholder="optional">
+
+    <label>Your Deck (JSON)</label>
+    <textarea id="deck">
+    
+      
+ 
+   </textarea>
+    
+
+
+    
+    
+
+    <button class="create" onclick="start('create')">Create Room</button>
+    <button class="join" onclick="start('join')">Join Room</button>
+    <button class="join2" onclick="fillTextarea(yugi)">Yugi Moto</button>
+    <button class="join2" onclick="fillTextarea(kaiba)">Seto Kaiba</button>
+    <button class="join2" onclick="fillTextarea(joey)">Joey Wheeler</button>
+    <button class="join2" onclick="fillTextarea(SpNb)">Spanish numbers</button>
+ 
+   
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="yugi.js"></script>
+  <script src="kaiba.js"></script>
+  <script src="joey.js"></script>
+  <script src="Spanish numbers.js"></script>
+
+   <script>
+
+
+    // Add this helper function in lobby.html
+    function checkStorageSize() {
+      let total = 0;
+      for (let key in sessionStorage) {
+        if (sessionStorage.hasOwnProperty(key)) {
+          total += sessionStorage[key].length + key.length;
+        }
+      }
+      console.log('SessionStorage usage:', (total / 1024 / 1024).toFixed(2), 'MB');
+      console.log('Items:', Object.keys(sessionStorage).length);
+
+      // Check individual items
+      for (let key in sessionStorage) {
+        if (sessionStorage.hasOwnProperty(key)) {
+          const size = (sessionStorage[key].length / 1024 / 1024).toFixed(2);
+          console.log(`  ${key}: ${size} MB`);
+        }
+      }
+    }
+
+    
+    
+    function start(action) {
+      const room = document.getElementById('room').value.trim();
+      const password = document.getElementById('password').value || '';
+      const deckText = document.getElementById('deck').value || '[]';
+
+      if (!room) {
+        alert('Enter room name');
+        return;
+      }
+
+      let deck;
+      try {
+        deck = JSON.parse(deckText);
+        if (!Array.isArray(deck) || deck.length === 0) {
+          alert('Deck must be a non-empty JSON array');
+          return;
+        }
+      } catch (e) {
+        alert('Invalid JSON');
+        return;
+      }
+
+      // ✅ Clear old session data (this is a NEW game, not a reconnection)
+      sessionStorage.removeItem('mp_localPlayerIndex');
+
+      // Save only this player's deck
+      sessionStorage.setItem('mp_deck', JSON.stringify(deck));
+
+      sessionStorage.setItem('mp_isCreator', action === 'create' ? '1' : '0');
+
+      // Go to game
+      window.location.href = `game.html?multiplayer=1&room=${encodeURIComponent(room)}&password=${encodeURIComponent(password)}`;
+    }
+
+    function fillTextarea(cardData) {
+  // Check if cardData exists (from the separate file)
+  if (typeof cardData === 'undefined') {
+    console.error('cardData is not defined. Make sure cards.js is loaded before main.js');
+    return;
+  }
+  
+  // Convert the array to a formatted JSON string
+  const formattedText = JSON.stringify(cardData, null, 2);
+  
+  // Get the textarea element
+  const deckTextarea = document.getElementById('deck');
+  
+  if (deckTextarea) {
+    // Add the text to the textarea
+    deckTextarea.value = formattedText;
+  } else {
+    console.error('Textarea with id "deck" not found');
+  }
+}
+
+  </script>
+</body>
+
+</html>
