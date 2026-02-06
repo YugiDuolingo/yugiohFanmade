@@ -106,28 +106,28 @@ const joey =
     "desc": "Activate only when your opponent Normal Summons or Flip Summons a monster with 1000 or more ATK. Destroy that monster."
   },
   {
-    "cn": "token",
+    "cn": "Token",
     "atr": "earth",
     "ak": 0,
     "df": 0,
     "extra": "true"
   },
   {
-    "cn": "token",
+    "cn": "Token",
     "atr": "earth",
     "ak": 0,
     "df": 0,
     "extra": "true"
   },
   {
-    "cn": "token",
+    "cn": "Token",
     "atr": "earth",
     "ak": 0,
     "df": 0,
     "extra": "true"
   },
   {
-    "cn": "token",
+    "cn": "Token",
     "atr": "earth",
     "ak": 0,
     "df": 0,

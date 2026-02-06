@@ -246,7 +246,7 @@ const kaiba =
   },
 
   {
-    "cn": "Lord Of D.",
+    "cn": "Lord Of D",
     "atr": "dark",
     "tr": 4,
     "ak": 1200,
@@ -256,7 +256,7 @@ const kaiba =
   },
 
   {
-    "cn": "Lord Of D.",
+    "cn": "Lord Of D",
     "atr": "dark",
     "tr": 4,
     "ak": 1200,
