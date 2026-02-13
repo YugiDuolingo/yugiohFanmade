@@ -389,7 +389,7 @@ const joey =
   },
 
   {
-    "cn": "Sangan",
+    "cn": "sangan",
     "atr": "dark",
     "tr": 3,
     "ak": 1000,

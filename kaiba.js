@@ -149,7 +149,7 @@ const kaiba =
     "desc": " "
   },
   {
-    "cn": "Trap master",
+    "cn": "Trap Master",
     "atr": "earth",
     "tr": 3,
     "ak": 500,
@@ -246,7 +246,7 @@ const kaiba =
   },
 
   {
-    "cn": "Lord Of D",
+    "cn": "Lord of D",
     "atr": "dark",
     "tr": 4,
     "ak": 1200,
@@ -256,7 +256,7 @@ const kaiba =
   },
 
   {
-    "cn": "Lord Of D",
+    "cn": "Lord of D",
     "atr": "dark",
     "tr": 4,
     "ak": 1200,
@@ -423,7 +423,7 @@ const kaiba =
   },
 
   {
-    "cn": "stop defense",
+    "cn": "Stop Defense",
     "atr": "trap"
   }
 ]

@@ -130,7 +130,7 @@ const yugi =
   },
 
 {
-    "cn": "Mystical elf",
+    "cn": "mystical elf",
     "atr": "light",
     "tr": 4,
     "ak": 800,
@@ -210,7 +210,7 @@ const yugi =
     "desc": "Flip all monsters your opponent controls face-up. This card remains on the field for 3 of your opponent's turns. While this card is face-up on the field, monsters your opponent controls cannot declare an attack."
   },
   {
-    "cn": "Dark Magician of Chaos",
+    "cn": "dark magician of chaos",
     "atr": "dark",
     "tr": 8,
     "ak": 2800,
