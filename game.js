@@ -3026,7 +3026,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         });
 
         // If destination is deck, reshuffle
-        if (destinationLocation === 'deck1') {
+       /* if (destinationLocation === 'deck1') {
             this.deterministicShuffleDeck(0);
             console.log('did the shuffling for deck 1');
         } else if (destinationLocation === 'deck2') {
@@ -3041,7 +3041,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         } else if (sourceLocation === 'deck2') {
             this.deterministicShuffleDeck(1);
             console.log('did the shuffling for deck 2');
-        }
+        } */
 
         this.updateDisplay();
         this.displayAllCards();

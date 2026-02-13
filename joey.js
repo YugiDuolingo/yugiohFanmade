@@ -301,7 +301,7 @@ const joey =
     "cn": "zombyra the dark",
     "atr": "dark",
     "tr": 4,
-    "ak": 1600,
+    "ak": 2100,
     "df": 100,
     "tp": "fiend",
     "value": "a-200",
