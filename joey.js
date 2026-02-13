@@ -117,7 +117,7 @@ const joey =
     "atr": "earth",
     "ak": 0,
     "df": 0,
-    "extra": "tru
+    "extra": "true"
   },
   {
     "cn": "Token",
