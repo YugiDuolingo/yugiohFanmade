@@ -1932,7 +1932,7 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
         
         this.playCardAudio(targetCard);
         this.playSoundEffect('equip.mp3');
-        // this.deactivateValueSelection(); 
+        // this.deactivateValueSelection(); lol
         this.updateDisplay();
         this.displayAllCards();
     } else {
