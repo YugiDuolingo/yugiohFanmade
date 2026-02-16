@@ -1931,6 +1931,7 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
         console.log(`💥 [VALUE PASS] Target card after: ATK=${targetCard.ak}, DEF=${targetCard.df}`);
         
         this.playCardAudio(targetCard);
+        this.playSoundEffect('equip.mp3');
         // this.deactivateValueSelection(); 
         this.updateDisplay();
         this.displayAllCards();
