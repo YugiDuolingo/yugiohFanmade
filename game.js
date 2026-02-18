@@ -2967,11 +2967,13 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         faceUpBtn.addEventListener('click', () => {
             this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, true, 'attack');
             choicePopup.remove();
+            this.playSoundEffect('special.mp3');
         });
 
         faceDownBtn.addEventListener('click', () => {
             this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, false, 'defense');
             choicePopup.remove();
+            this.playSoundEffect('special.mp3');
         });
 
         cancelBtn.addEventListener('click', () => {
