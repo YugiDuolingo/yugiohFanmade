@@ -1440,6 +1440,7 @@ body {
 /* Defense position indicator - "D" badge */
 .defense-indicator {
   position: absolute;
+  left: 25% ;
   background-color: rgba(52, 152, 219, 0.9);
   color: white;
   font-weight: bold;
@@ -1450,7 +1451,7 @@ body {
   z-index: 11;
   pointer-events: none;
   border-radius: 50%;
-  width: 100%;
+  width: 50%;
 }
 
 

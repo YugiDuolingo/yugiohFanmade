@@ -30,6 +30,8 @@ class YuGiOhGame {
         // Value passing system
     this.activeValueCard = null; // Card that has value selected
     this.activeValue = null; // The value string (e.g., "a1000", "d-500")
+    this.tempAk = null;
+    
        
         this.deck = [[], []];
         this.extraDeck = [[], []];
@@ -90,6 +92,22 @@ parseValue(valueStr) {
         };
     }
 
+    if (valueStr === 'swap') {
+    return {
+        type: 'swap',
+        isMultiplier: false,
+        value: 0
+    };
+}
+
+    if (valueStr === 'discard') {
+    return {
+        type: 'discard',
+        isMultiplier: false,
+        value: 0
+    };
+}
+
 
     const match = valueStr.match(/^([adb])(\*?)(-?\d+\.?\d*)$/);
     if (!match) return null;
@@ -103,16 +121,7 @@ parseValue(valueStr) {
 
 // Calculate dice result using the same formula as rollDice()
 calculateDiceResult() {
-   /* const deck1Length = this.deck[0].length;
-    const deck2Length = this.deck[1].length;
-    const hand1Length = this.hand[0].length;
-    const hand2Length = this.hand[1].length;
-
-    const result = Math.abs((deck1Length + deck2Length - hand1Length - hand2Length) % 6) + 1;
    
-    console.log(`[DICE CALC] (${deck1Length} + ${deck2Length} - ${hand1Length} - ${hand2Length}) % 6 + 1 = ${result}`);
-    
-    */
     return this.diceValue;
 }
 
@@ -153,67 +162,7 @@ deactivateValueSelection() {
     this.displayAllCards();
 }
 
-// Pass value to target card
-// ✅ UPDATED: Accept card ID instead of card object (mirrorable)
-passValueToCard(targetCardId, targetPlayerIndex) {
-    if (!this.activeValue) {
-        console.log('[VALUE] No active value');
-        return;
-    }
-    
-    // Find the actual card in the monster field
-    const cardIndex = this.monsterField[targetPlayerIndex].findIndex(c => c.id === targetCardId);
-    if (cardIndex === -1) {
-        console.log(`[VALUE] Card ID ${targetCardId} not found on field`);
-        return;
-    }
-    
-    const actualCard = this.monsterField[targetPlayerIndex][cardIndex];
-    
-    // Only monsters can receive ATK/DEF values
-    if (this.getCardType(actualCard) !== 'monster') {
-        console.log(`${actualCard.cn} is not a monster, cannot receive value`);
-        return;
-    }
-    
-    // Store originals if not already stored
-    if (!actualCard.originalAk) actualCard.originalAk = actualCard.ak;
-    if (!actualCard.originalDf) actualCard.originalDf = actualCard.df;
-    
-    // Apply the value
-    const val = this.activeValue;
-    
-    if (val.type === 'a' || val.type === 'b') {
-        // Attack modification
-        if (val.isMultiplier) {
-            actualCard.ak = Math.max(0, Math.round(actualCard.ak * val.value));
-        } else {
-            actualCard.ak = Math.max(0, actualCard.ak + val.value);
-        }
-        console.log(`${actualCard.cn} ATK modified to ${actualCard.ak}`);
-    }
-    
-    if (val.type === 'd' || val.type === 'b') {
-        // Defense modification
-        if (val.isMultiplier) {
-            actualCard.df = Math.max(0, Math.round(actualCard.df * val.value));
-        } else {
-            actualCard.df = Math.max(0, actualCard.df + val.value);
-        }
-        console.log(`${actualCard.cn} DEF modified to ${actualCard.df}`);
-    }
-    console.log(`passvalue is working`);
-    
-    // Play audio feedback
-    this.playCardAudio(actualCard);
-    
-    // Deactivate value selection
-    this.deactivateValueSelection();
-    
-    // Update display
-    this.updateDisplay();
-    this.displayAllCards();
-}
+
 
 
     // Assign unique IDs to all cards in both decks
@@ -309,7 +258,7 @@ passValueToCard(targetCardId, targetPlayerIndex) {
         }
     }
 
-
+/*
     // Wrapper functions for UI actions (these will be mirrored)
     setLPModDirection(playerIndex, direction) {
         const popup = document.querySelector('.lp-modification-popup');
@@ -328,6 +277,8 @@ passValueToCard(targetCardId, targetPlayerIndex) {
         }
 
     }
+
+    /*
 
     setModDirection(stat, direction) {
         const popup = document.querySelector('.mod-value-popup');
@@ -370,7 +321,7 @@ passValueToCard(targetCardId, targetPlayerIndex) {
             }
         }
 
-    }
+    } 
 
     setCardModDirection(stat, direction) {
         const popup = document.querySelector('.card-modification-popup');
@@ -388,7 +339,7 @@ passValueToCard(targetCardId, targetPlayerIndex) {
             }
         }
 
-    }
+    } */
 
     setCardFilter(filterType) {
         const popup = document.querySelector('.card-selection-popup');
@@ -411,7 +362,7 @@ passValueToCard(targetCardId, targetPlayerIndex) {
 
     }
 
-    sortCardsAZ() {
+   /* sortCardsAZ() {
         const popup = document.querySelector('.card-selection-popup');
         if (popup) {
             const container = popup.querySelector('.card-selection');
@@ -427,7 +378,7 @@ passValueToCard(targetCardId, targetPlayerIndex) {
             }
         }
 
-    }
+    }*/
 
 
     async autoStartGame() {
@@ -713,7 +664,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
     toggleMonsterPosition(card, playerIndex) {
-        // 🔍 SEARCH for the card in monster field (like sendMonsterToGraveyard does)
+        
         const cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === card.id);
 
         if (cardIndex === -1) {
@@ -721,7 +672,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             return false;
         }
 
-        // 🎯 Get the ACTUAL card from the array (like sendMonsterToGraveyard does)
+        
         const actualCard = this.monsterField[playerIndex][cardIndex];
 
         // ✅ Modify the ACTUAL card (not the parameter)
@@ -805,7 +756,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
         return false;
     }
 
-    sendSpellTrapToGraveyard(card, playerIndex) {
+    sendSpellTrapToGraveyard(card, playerIndex,playAudio) {
         // Determine owner from card ID
         const ownerIndex = card.id && card.id.includes('p1') ? 1 : 0;
 
@@ -826,7 +777,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
-            this.playCardAudio(removedCard);
+           if (playAudio == 1) {this.playCardAudio(removedCard);}
 
             this.updateDisplay();
             this.displayAllCards();
@@ -837,7 +788,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
 
 
     //  Send monster to graveyard with stat restoration
-    sendMonsterToGraveyard(card, playerIndex) {
+    sendMonsterToGraveyard(card, playerIndex,playAudio) {
         // Determine owner from card ID (e.g., "5p1" = player 1, "12p2" = player 2)
         const ownerIndex = card.id && card.id.includes('p1') ? 1 : 0;
 
@@ -867,7 +818,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
-            this.playCardAudio(removedCard);
+           if( playAudio ==1) { this.playCardAudio(removedCard); }
 
             this.updateDisplay();
             this.displayAllCards();
@@ -877,7 +828,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
     flipCardFaceUp(card, playerIndex) {
-        // 🔍 SEARCH for the card (like sendMonsterToGraveyard does)
+        
         let cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === card.id && !c.faceUp);
         let foundInMonsterField = cardIndex !== -1;
 
@@ -891,7 +842,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             return false;
         }
 
-        // 🎯 Get the ACTUAL card from the array (like sendMonsterToGraveyard does)
+        
         const actualCard = foundInMonsterField
             ? this.monsterField[playerIndex][cardIndex]
             : this.spellTrapField[playerIndex][cardIndex];
@@ -912,7 +863,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
     flipCardFaceUpV2(card, playerIndex) {
-        // 🔍 SEARCH for the card (like sendMonsterToGraveyard does)
+        
         let cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === card.id && !c.faceUp);
         let foundInMonsterField = cardIndex !== -1;
 
@@ -926,7 +877,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             return false;
         }
 
-        // 🎯 Get the ACTUAL card from the array (like sendMonsterToGraveyard does)
+        
         const actualCard = foundInMonsterField
             ? this.monsterField[playerIndex][cardIndex]
             : this.spellTrapField[playerIndex][cardIndex];
@@ -1695,7 +1646,7 @@ const trSection = document.createElement('div');
 
                     imageSection.appendChild(img);
                     imageSection.style.backgroundColor = 'transparent';
-                    console.log(`⚠️ Using image from path: ${imgBase}${card.cn}.jpg`);
+                    //console.log(`⚠️ Using image from path: ${imgBase}${card.cn}.jpg`);
                 }
             }
         }
@@ -1795,11 +1746,11 @@ const trSection = document.createElement('div');
                 this.handleHandCardDoubleClick(card, playerIndex);
             } else if (location === 'field') {
                 if (this.getCardType(card) === 'monster') {
-                    this.sendMonsterToGraveyard(card, playerIndex);
+                    this.sendMonsterToGraveyard(card, playerIndex,1);
                     this.playSoundEffect('graveyard.mp3');
                 }
             } else if (location === 'spelltrapfield') {
-                this.sendSpellTrapToGraveyard(card, playerIndex);
+                this.sendSpellTrapToGraveyard(card, playerIndex,1);
                 this.playSoundEffect('graveyard.mp3');
             }
         });
@@ -1808,17 +1759,48 @@ const trSection = document.createElement('div');
     }
 
     handleHandCardClick(card, playerIndex) {
-        console.log(`Single-click on ${card.cn} in hand`);
-        if (this.getCardType(card) === 'monster') {
-            if (this.playMonster(card, playerIndex, 'attack', true)) {
-                console.log(`${card.cn} played in Attack Position!`);
-            }
-        } else {
-            if (this.playSpellTrapFaceUp(card, playerIndex)) {
-                console.log(`${card.cn} activated face-up!`);
-            }
+    console.log(`Single-click on ${card.cn} in hand`);
+
+    // Discard mode: show on field briefly, then send to graveyard
+    if (this.activeValue && this.activeValue.type === 'discard') {
+        this.discardCardFromHand(card, playerIndex);
+        
+        return;
+    }
+
+    if (this.getCardType(card) === 'monster') {
+        if (this.playMonster(card, playerIndex, 'attack', true)) {
+            console.log(`${card.cn} played in Attack Position!`);
+        }
+    } else {
+        if (this.playSpellTrapFaceUp(card, playerIndex)) {
+            console.log(`${card.cn} activated face-up!`);
         }
     }
+}
+
+discardCardFromHand(card, playerIndex) {
+    const isMonster = this.getCardType(card) === 'monster';
+
+    // Step 1: move card from hand → field visually
+    if (isMonster) {
+        this.playMonster(card, playerIndex, 'attack', true);
+    } else {
+        this.playSpellTrapFaceUp(card, playerIndex);
+    }
+
+    // Step 2: after 1000ms, send it to the graveyard
+    setTimeout(() => {
+        if (isMonster) {
+            this.sendMonsterToGraveyard(card, playerIndex,0);
+        } else {
+            this.sendSpellTrapToGraveyard(card, playerIndex,0);
+        }
+        this.playSoundEffect('graveyard.mp3');
+        console.log(`${card.cn} discarded to graveyard after delay`);
+    }, 1000);
+}
+
 
     // FIXED: Double-click from hand = face-down
     handleHandCardDoubleClick(card, playerIndex) {
@@ -1907,6 +1889,14 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
             // ✅ Show dice result to user
            // this.showDiceResult(diceResult);
         }
+
+        if (val.type === 'swap') {
+    const tempAk = targetCard.ak;
+    targetCard.ak = targetCard.df;
+    targetCard.df = tempAk;
+    console.log(`${targetCard.cn} ATK/DEF swapped → ATK: ${targetCard.ak}, DEF: ${targetCard.df}`);
+    
+}
         
         // ✅ Apply ATK modification
         if (val.type === 'a' || val.type === 'b' || val.type === 'l') {

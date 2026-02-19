@@ -66,6 +66,7 @@ const kaiba =
     "ak": 1900,
     "df": 0,
     "tp": "dragon",
+    "value": "swap",
     "desc": "If this card attacks a Defense Position monster, inflict piercing battle damage. If this card attacks, it is changed to Defense Position at the end of the Damage Step."
   },
   
@@ -269,6 +270,7 @@ const kaiba =
   {
     "cn": "Card Destruction",
     "atr": "spell",
+    "value": "discard",
     "desc": "Each player discards their entire hand and draws the same number of cards they discarded."
   },
  
@@ -290,7 +292,8 @@ const kaiba =
   {
     "cn": "Graceful Charity",
     "atr": "spell",
-    "desc": "Draw 3 cards, then discard 2 cards."
+    "desc": "Draw 3 cards, then discard 2 cards.",
+    "value": "discard"
   },
   {
     "cn": "monster reborn",

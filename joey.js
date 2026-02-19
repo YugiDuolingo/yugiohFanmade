@@ -136,6 +136,7 @@ const joey =
   {
     "cn": "Card Destruction",
     "atr": "spell",
+    "value": "discard",
     "desc": "Each player discards their entire hand and draws the same number of cards they discarded."
   },
   {
@@ -160,6 +161,7 @@ const joey =
   {
     "cn": "Graceful Charity",
     "atr": "spell",
+    "value": "discard",
     "desc": "Draw 3 cards, then discard 2 cards."
   },
   {
