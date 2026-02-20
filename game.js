@@ -3679,7 +3679,7 @@ if (player1DeckSection) {
         if (clickCount === 1) {
             this.playSoundEffect('deck1.mp3');
     console.log('[DECK CLICK] Opening 3 popups');
-    his.quickTransferToField('deck1', 'monsterfield1', 'deck1');
+    this.quickTransferToField('deck1', 'monsterfield1', 'deck1');
     this.quickTransferToField('extradeck1', 'monsterfield1', 'extra1');
     this.quickTransferToField('graveyard1', 'monsterfield1', 'grave1');
 
