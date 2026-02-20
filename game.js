@@ -2957,13 +2957,13 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         faceUpBtn.addEventListener('click', () => {
             this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, true, 'attack');
             choicePopup.remove();
-            this.playSoundEffect('special.mp3');
+            
         });
 
         faceDownBtn.addEventListener('click', () => {
             this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, false, 'defense');
             choicePopup.remove();
-            this.playSoundEffect('special.mp3');
+            
         });
 
         cancelBtn.addEventListener('click', () => {
@@ -3008,8 +3008,11 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
                     if (!card.originalAk) card.originalAk = card.ak;
                     if (!card.originalDf) card.originalDf = card.df;
                 }
+                if (sourceLocation.includes('grave')) {
+                this.playSoundEffect('special.mp3'); } 
 
                 // Play audio when brought to field face-up
+               
                 if (faceUp) {
                     this.playCardAudio(card);
                 }
@@ -3026,15 +3029,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
             this.deterministicShuffleDeck(1);
             console.log('did the shuffling for deck 2');
         }
-
-        // If source is deck, reshuffle
-        if (sourceLocation === 'deck1') {
-            this.deterministicShuffleDeck(0);
-            console.log('did the shuffling for deck 1');
-        } else if (sourceLocation === 'deck2') {
-            this.deterministicShuffleDeck(1);
-            console.log('did the shuffling for deck 2');
-        } */
+ */
 
         this.updateDisplay();
         this.displayAllCards();
