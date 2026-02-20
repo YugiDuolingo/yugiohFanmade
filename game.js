@@ -3679,10 +3679,9 @@ if (player1DeckSection) {
         if (clickCount === 1) {
             this.playSoundEffect('deck1.mp3');
     console.log('[DECK CLICK] Opening 3 popups');
-    this.quickTransferToField('graveyard1', 'monsterfield1', 'grave1');
-    this.quickTransferToField('deck1', 'monsterfield1', 'deck1');
+    his.quickTransferToField('deck1', 'monsterfield1', 'deck1');
     this.quickTransferToField('extradeck1', 'monsterfield1', 'extra1');
-
+    this.quickTransferToField('graveyard1', 'monsterfield1', 'grave1');
 
 
 } else if (clickCount === 3) {
@@ -3722,9 +3721,11 @@ if (player2DeckSection) {
             if (clickCount === 1) {
                  this.playSoundEffect('deck2.mp3');
              console.log('[DECK CLICK] Opening 3 popups');
-    this.quickTransferToField('graveyard2', 'monsterfield2', 'grave2');
+    
     this.quickTransferToField('deck2', 'monsterfield2', 'deck2');
     this.quickTransferToField('extradeck2', 'monsterfield2', 'extra2');
+    this.quickTransferToField('graveyard2', 'monsterfield2', 'grave2');
+
             } else if (clickCount === 3) {
                 // Double click - still draw card (existing behavior)
              //  console.log('[DECK CLICK] Player 2 graveyard → monster field');

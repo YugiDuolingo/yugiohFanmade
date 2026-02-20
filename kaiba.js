@@ -201,7 +201,7 @@ const kaiba =
   {
     "cn": "Megamorph",
     "atr": "spell",
-    "value": "a*2"
+    "value": "b*2"
   },
   {
     "cn": "The Flute of Summoning Dragon",
