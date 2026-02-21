@@ -258,7 +258,7 @@ deactivateValueSelection() {
         }
     }
 
-/*
+
     // Wrapper functions for UI actions (these will be mirrored)
     setLPModDirection(playerIndex, direction) {
         const popup = document.querySelector('.lp-modification-popup');
@@ -278,7 +278,7 @@ deactivateValueSelection() {
 
     }
 
-    /*
+    
 
     setModDirection(stat, direction) {
         const popup = document.querySelector('.mod-value-popup');
@@ -339,7 +339,8 @@ deactivateValueSelection() {
             }
         }
 
-    } */
+    } 
+        
 
     setCardFilter(filterType) {
         const popup = document.querySelector('.card-selection-popup');
@@ -362,7 +363,7 @@ deactivateValueSelection() {
 
     }
 
-   /* sortCardsAZ() {
+    sortCardsAZ() {
         const popup = document.querySelector('.card-selection-popup');
         if (popup) {
             const container = popup.querySelector('.card-selection');
@@ -378,7 +379,7 @@ deactivateValueSelection() {
             }
         }
 
-    }*/
+    }
 
 
     async autoStartGame() {
@@ -557,77 +558,48 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
 
-    playCardAudio(card) {
-        // Check audio settings
-        const indexedDBEnabled = localStorage.getItem('audio_indexeddb') !== 'false';
-        const ttsEnabled = localStorage.getItem('audio_tts') === 'true';
+   playCardAudio(card) {
+    const indexedDBEnabled = localStorage.getItem('audio_indexeddb') !== 'false';
+    const ttsEnabled = localStorage.getItem('audio_tts') === 'true';
 
-        // If both disabled, play nothing
-        if (!indexedDBEnabled && !ttsEnabled) {
-            console.log('[AUDIO] All audio disabled');
-            return;
-        }
-
-        // ✅ NEW: Try IndexedDB first (if enabled)
-        if (!indexedDBEnabled) {
-            // IndexedDB disabled, skip to TTS
-            if (ttsEnabled) {
-                this.playCardAudioTTS(card);
-            }
-            return;
-        }
-
-        try {
-            // PRIORITY 1: Check window.CARD_AUDIO_MAP (loaded from IndexedDB)
-            if (window.CARD_AUDIO_MAP && window.CARD_AUDIO_MAP[`${card.cn}.mp3`]) {
-                const audio = new Audio(window.CARD_AUDIO_MAP[`${card.cn}.mp3`]);
-                audio.volume = 0.5;
-                audio.play().catch(e => {
-                    console.log(`Could not play audio for ${card.cn}:`, e.message);
-                    if (ttsEnabled) this.playCardAudioTTS(card); // Fallback to TTS if enabled
-                });
-                console.log(`✅ Playing audio from IndexedDB: ${card.cn}.mp3`);
-                return;
-            }
-
-            // PRIORITY 2: Check sessionStorage (legacy support for lobby.html)
-           /* const audioMapStr = sessionStorage.getItem('mp_audioMap');
-            if (audioMapStr) {
-                try {
-                    const audioMap = JSON.parse(audioMapStr);
-                    if (audioMap[`${card.cn}.mp3`]) {
-                        const audio = new Audio(audioMap[`${card.cn}.mp3`]);
-                        audio.volume = 0.5;
-                        audio.play().catch(e => {
-                            console.log(`Could not play audio for ${card.cn}:`, e.message);
-                            if (ttsEnabled) this.playCardAudioTTS(card);
-                        });
-                        console.log(`✅ Playing audio from sessionStorage: ${card.cn}.mp3`);
-                        return;
-                    }
-                } catch (e) {
-                    console.log('Could not parse sessionStorage audio map');
-                }
-            } */
-
-            // PRIORITY 3: Try loading from path (if CARD_AUDIO_PATH is set)
-            const audioBase = (window.CARD_AUDIO_PATH && window.CARD_AUDIO_PATH.endsWith('/'))
-                ? window.CARD_AUDIO_PATH
-                : (window.CARD_AUDIO_PATH ? window.CARD_AUDIO_PATH + '/' : 'cards audio/');
-
-            const audio = new Audio(`${audioBase}${card.cn}.mp3`);
+    // PRIORITY 1: IndexedDB
+    if (indexedDBEnabled) {
+        if (window.CARD_AUDIO_MAP && window.CARD_AUDIO_MAP[`${card.cn}.mp3`]) {
+            const audio = new Audio(window.CARD_AUDIO_MAP[`${card.cn}.mp3`]);
             audio.volume = 0.5;
-            audio.play().catch(e => {
-                console.log(`Could not play audio for ${card.cn}:`, e.message);
-                if (ttsEnabled) this.playCardAudioTTS(card); // Fallback to TTS if enabled
-            });
-            console.log(`⚠️ Playing audio from path: ${audioBase}${card.cn}.mp3`);
+            audio.play().catch(() => { if (ttsEnabled) this.playCardAudioTTS(card); });
+            return;
+        }
 
-        } catch (error) {
-            console.log(`Audio file not found for ${card.cn}`);
-            if (ttsEnabled) this.playCardAudioTTS(card); // Fallback to TTS
+        // sessionStorage fallback
+        const audioMapStr = sessionStorage.getItem('mp_audioMap');
+        if (audioMapStr) {
+            try {
+                const audioMap = JSON.parse(audioMapStr);
+                if (audioMap[`${card.cn}.mp3`]) {
+                    const audio = new Audio(audioMap[`${card.cn}.mp3`]);
+                    audio.volume = 0.5;
+                    audio.play().catch(() => { if (ttsEnabled) this.playCardAudioTTS(card); });
+                    return;
+                }
+            } catch (e) {}
         }
     }
+
+    // PRIORITY 2: Path
+    const audioBase = (window.CARD_AUDIO_PATH && window.CARD_AUDIO_PATH.endsWith('/'))
+        ? window.CARD_AUDIO_PATH
+        : (window.CARD_AUDIO_PATH ? window.CARD_AUDIO_PATH + '/' : 'cardsaudio/');
+
+    const audio = new Audio(`${audioBase}${card.cn}.mp3`);
+    console.log(`[AUDIO PATH] Trying: ${audio.src}`);
+    audio.volume = 0.5;
+    audio.play().catch(e => {
+        console.log(`[AUDIO PATH] Failed: ${e.message}`);
+        // PRIORITY 3: TTS
+        if (ttsEnabled) this.playCardAudioTTS(card);
+    });
+}
 
     // NEW: TTS fallback method
     playCardAudioTTS(card) {
@@ -1035,6 +1007,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
                 damage = defenderATK - attackerATK;
                 this.modifyLP(attackerPlayer, -damage);
                 battleResult = `${defender.cn} wins! ${damage} damage dealt. ${attacker.cn} can be sent to graveyard manually.`;
+                
                 //this.sendMonsterToGraveyard(attacker, attackerPlayer);
                 this.addDestroyedIndicatorByCard(attacker, attackerPlayer);
             } else {
@@ -1099,13 +1072,14 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
                     if (cardElement.querySelector('.destroyed-indicator')) {
                         return; // Already has indicator
                     }
-
+                      
                     const indicator = document.createElement('div');
                     indicator.classList.add('destroyed-indicator');
                     indicator.textContent = '💀';
                     cardElement.appendChild(indicator);
                     cardElement.style.opacity = '0.6';
                     cardElement.style.filter = 'grayscale(50%)';
+                    
                 }
             });
         });

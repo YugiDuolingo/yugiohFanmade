@@ -6,7 +6,7 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #2c3e50;
+  background: linear-gradient(180deg, #49484a, #121212 );
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -14,6 +14,8 @@ body {
   align-items: center;
   overflow: hidden;
 }
+
+
 
 /*game bar controller*/
 .game-container {
@@ -88,8 +90,8 @@ body {
 
 
 .phase-indicator {
-  background: #7bcfff;
-  color: rgb(0, 0, 0);
+  background: #3a505c;
+  color: rgb(255, 255, 255);
   width: 100%;
   padding: 8px;
   border-radius: 5px;
@@ -101,14 +103,14 @@ body {
 }
 
 .phase-indicator.player2 {
-  background: #ffc0e2;
+  background: #472134;
 }
 
 
 
 
 .phase-indicator.active {
-  background-color: #ffffff !important;
+  background-color: #ea8b38 !important;
   /* Brighter red for active */
   border: 2px solid #c0392b;
   box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
@@ -123,6 +125,7 @@ body {
   display: flex;
   flex-direction: column;
   margin-right: 2%;
+  
 }
 
 .game-field-row {
@@ -153,12 +156,10 @@ body {
 
 }
 
-.player-hand-top {
-  background-color: #6f5234;
-}
+
 
 .player-hand-bottom {
-  background-color: #6f5234;
+  
   margin-bottom: 0;
 }
 
@@ -388,6 +389,7 @@ body {
   font-weight: bold;
   overflow: hidden;
   color: black;
+ 
 }
 
 
@@ -410,7 +412,7 @@ body {
 .player2-spell-trap {
   height: 16%;
   width: 100vw;
-  background-color: #72072a;
+  
   justify-content: center;
 
 }
@@ -418,7 +420,7 @@ body {
 .player2-monster {
   height: 17%;
   width: 100vw;
-  background: rgba(106, 125, 152, 0.3);
+  
   border: 0px solid #000000;
   margin-bottom: 0px;
   display: flex;
@@ -432,7 +434,7 @@ body {
 .player1-monster {
   height: 17%;
   width: 100vw;
-  background: rgba(106, 125, 152, 0.3);
+ 
   border: 0px solid #000000;
   margin-bottom: 0px;
   display: flex;
@@ -446,7 +448,7 @@ body {
 .player1-spell-trap {
   height: 16%;
   width: 100vw;
-  background-color: #426fb6;
+  
   justify-content: center;
 
 }
@@ -496,19 +498,7 @@ body {
 
 
 
-/* Bring Cards Button */
-.bring-cards-button {
-  background: #9b59b6;
-  color: white;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: bold;
-  margin: 2px;
-  transition: all 0.2s;
-}
+
 
 
 
@@ -1119,69 +1109,6 @@ body {
   animation: vibrate 0.4s linear;
 }
 
-.simulator-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #34495e;
-  border-radius: 10px;
-  padding: 15px;
-  width: 300px;
-  height: 400px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-  z-index: 3000;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-.simulator-popup.hidden {
-  display: none;
-}
-
-.simulator-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.simulator-option {
-  margin: 5px;
-  padding: 8px 15px;
-  background-color: #27ae60;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-}
-
-
-
-.simulator-display {
-  font-size: 48px;
-  font-weight: bold;
-  margin: 10px 0;
-  width: 100px;
-  text-align: center;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  padding: 10px 0;
-}
-
-.stop-button {
-  padding: 8px 20px;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.stop-button:disabled {
-  background-color: #999;
-  cursor: not-allowed;
-}
 
 .close-popup {
   background-color: #c0392b;
@@ -1237,7 +1164,7 @@ body {
 }
 
 .fullscreen-button:active {
-  background-color: #004a99;
+  background-color: #f38202;
 }
 
 .game-controls-bar {
@@ -1251,7 +1178,7 @@ body {
   /* Half viewport width for overlay coverage */
   height: 100vh !important;
   /* Full height to match viewport */
-  background: rgba(39, 174, 96, 0.5) !important;
+  background: rgba(117, 115, 113, 0.5) !important;
   /* Semi-transparent green base */
   border-radius: 8px !important;
   border: 2px solid rgba(0, 0, 0, 0.8) !important;
@@ -1278,7 +1205,7 @@ body {
 }
 
 #player2Decksection {
-  background-color: #dc2626;
+  background-color: #b42929;
 }
 
 #player1Decksection {
@@ -1296,7 +1223,7 @@ body {
 .player1-deck-count {
   font-size: 24px;
   font-weight: bold;
-  background: #2c3e50;
+  background: #000000;
   border-radius: 3px;
   padding: 0px 0px;
   color: white;
@@ -1312,14 +1239,14 @@ body {
   /* Full bar width, like other buttons */
   min-height: 40px;
   /* Fixed height for consistency (adjust if bar squeezes) */
-  background: #34495e !important;
+  background: #272121c8 !important;
   /* Dark blue background */
   color: #fff !important;
   /* White text */
   font-weight: bold;
   font-size: 18px;
   /* "S" or text size */
-  border: 1px solid #2c3e50;
+  border: 0px solid #2c3e50;
   /* Dark border */
   border-radius: 5px;
   /* Rounded */
@@ -1350,7 +1277,7 @@ body {
 
 .bring-cards-button {
   width: 100%;
-  background: #c0392b;
+  background: #000000;
   color: white;
   border-radius: 5px;
   font-size: 15px;
@@ -1641,8 +1568,8 @@ body {
 }
 
 .close-popups-btn {
-  background-color: #e74c3c !important;
-  color: white !important;
+  background-color: #b42929 !important;
+  color: rgb(255, 255, 255) !important;
   width: 100% !important;
   padding: 8px !important;
   border-radius: 5px !important;
@@ -1848,11 +1775,16 @@ body {
         transform: translate(-50%, -50%);
         font-size: 200px;
         font-weight: bold;
-        color: #3498db;
+        color: #ffffff;
         z-index: 3000;
         font-family: Arial, sans-serif;
-        text-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+        text-shadow: 0 0 10px rgb(255, 255, 255);
+        text-align: center;
         pointer-events: none;
+        background-color: #ffd001c0;
+        width: 30%;
+        border-radius: 10%;
+        
 
 }
 
