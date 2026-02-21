@@ -90,7 +90,7 @@ body {
 
 
 .phase-indicator {
-  background: #3a505c;
+  background: #385b6e;
   color: rgb(255, 255, 255);
   width: 100%;
   padding: 8px;
@@ -103,7 +103,7 @@ body {
 }
 
 .phase-indicator.player2 {
-  background: #472134;
+  background: #7f3c5d;
 }
 
 
