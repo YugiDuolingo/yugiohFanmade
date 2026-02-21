@@ -1072,7 +1072,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
                     if (cardElement.querySelector('.destroyed-indicator')) {
                         return; // Already has indicator
                     }
-                      
+                
                     const indicator = document.createElement('div');
                     indicator.classList.add('destroyed-indicator');
                     indicator.textContent = '💀';
