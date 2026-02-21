@@ -203,7 +203,7 @@ const joey =
     "tr": 4,
     "ak": 1500,
     "df": 1400,
-    "value" : "a500" ,
+    "value" : "a-500" ,
     "desc": "This effect is only active during the Battle Phase of your turn. Battle Damage to this card and this card's controller that they take from a battle involving this card becomes 0. After damage calculation, decrease the ATK of the monster that was attacked by this card by 500 points until the end of this turn."
   },
   {
