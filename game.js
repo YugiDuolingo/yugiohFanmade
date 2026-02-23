@@ -1,4 +1,4 @@
-console.log('Loading Yu-Gi-Oh Game Engine with Fixed Events...');
+
 
 class YuGiOhGame {
 
@@ -28,11 +28,11 @@ class YuGiOhGame {
 
     initializeGameState() {
         // Value passing system
-    this.activeValueCard = null; // Card that has value selected
-    this.activeValue = null; // The value string (e.g., "a1000", "d-500")
-    this.tempAk = null;
-    
-       
+        this.activeValueCard = null; // Card that has value selected
+        this.activeValue = null; // The value string (e.g., "a1000", "d-500")
+        this.tempAk = null;
+
+
         this.deck = [[], []];
         this.extraDeck = [[], []];
         // Store original decks for restart
@@ -50,9 +50,9 @@ class YuGiOhGame {
         this.mp = true;
         this.bp = false;
         this.ep = false;
-        this.randomdCount = 0; 
-        this.randomvalues = [5,8,4,7,9,55,1,44,65,4,7,98,14,78,65,98,14,6,8];
-        this.diceValue = 0 ;
+        this.randomdCount = 0;
+        this.randomvalues = [5, 8, 4, 7, 9, 55, 1, 44, 65, 4, 7, 98, 14, 78, 65, 98, 14, 6, 8];
+        this.diceValue = 0;
 
         // Battle system variables - Multiple attacks
         this.selectedAttacker = null;
@@ -69,98 +69,98 @@ class YuGiOhGame {
         this.defModDir = 1;
         this.activeAtkMod = false;
         this.activeDefMod = false;
-        
+
 
         console.log('Game state initialized');
     }
 
-// Add this method to parse value strings
-parseValue(valueStr) {
-    if (!valueStr) return null;
-    
-    // Examples: "a1000", "d-500", "b200", "a*2", "d*0.5"
+    // Add this method to parse value strings
+    parseValue(valueStr) {
+        if (!valueStr) return null;
 
- // ✅ Check for luck values first (l+ or l-)
-    const luckMatch = valueStr.match(/^l([+-])$/);
-    if (luckMatch) {
+        // Examples: "a1000", "d-500", "b200", "a*2", "d*0.5"
+
+        // ✅ Check for luck values first (l+ or l-)
+        const luckMatch = valueStr.match(/^l([+-])$/);
+        if (luckMatch) {
+            return {
+                type: 'l', // luck type
+                isLuck: true,
+                isPositive: luckMatch[1] === '+',
+                isMultiplier: false,
+                value: 0 // Will be calculated when applied
+            };
+        }
+
+        if (valueStr === 'swap') {
+            return {
+                type: 'swap',
+                isMultiplier: false,
+                value: 0
+            };
+        }
+
+        if (valueStr === 'discard') {
+            return {
+                type: 'discard',
+                isMultiplier: false,
+                value: 0
+            };
+        }
+
+
+        const match = valueStr.match(/^([adb])(\*?)(-?\d+\.?\d*)$/);
+        if (!match) return null;
+
         return {
-            type: 'l', // luck type
-            isLuck: true,
-            isPositive: luckMatch[1] === '+',
-            isMultiplier: false,
-            value: 0 // Will be calculated when applied
+            type: match[1], // 'a' = attack, 'd' = defense, 'b' = both
+            isMultiplier: match[2] === '*',
+            value: parseFloat(match[3])
         };
     }
 
-    if (valueStr === 'swap') {
-    return {
-        type: 'swap',
-        isMultiplier: false,
-        value: 0
-    };
-}
+    // Calculate dice result using the same formula as rollDice()
+    calculateDiceResult() {
 
-    if (valueStr === 'discard') {
-    return {
-        type: 'discard',
-        isMultiplier: false,
-        value: 0
-    };
-}
-
-
-    const match = valueStr.match(/^([adb])(\*?)(-?\d+\.?\d*)$/);
-    if (!match) return null;
-    
-    return {
-        type: match[1], // 'a' = attack, 'd' = defense, 'b' = both
-        isMultiplier: match[2] === '*',
-        value: parseFloat(match[3])
-    };
-}
-
-// Calculate dice result using the same formula as rollDice()
-calculateDiceResult() {
-   
-    return this.diceValue;
-}
-
-
-// Activate value selection on a card
-activateValueSelection(card, playerIndex) {
-    if (!card.value) {
-        console.log(`${card.cn} has no value property`);
-        return;
+        return this.diceValue;
     }
-    
-    const parsed = this.parseValue(card.value);
-    if (!parsed) {
-        console.error(`Invalid value format: ${card.value}`);
-        return;
-    }
-   
-    
-    console.log(`[VALUE] Activated value ${card.value} on ${card.cn}`);
-    
-    this.activeValueCard = {
-        card: card,
-        playerIndex: playerIndex,
-        cardId: card.id
-    };
-   
-    this.activeValue = parsed;
-    
-    // Update display to show active state
-    this.displayAllCards();
-}
 
-// Deactivate value selection
-deactivateValueSelection() {
-    console.log('[VALUE] Deactivated value selection');
-    this.activeValueCard = null;
-    this.activeValue = null;
-    this.displayAllCards();
-}
+
+    // Activate value selection on a card
+    activateValueSelection(card, playerIndex) {
+        if (!card.value) {
+            console.log(`${card.cn} has no value property`);
+            return;
+        }
+
+        const parsed = this.parseValue(card.value);
+        if (!parsed) {
+            console.error(`Invalid value format: ${card.value}`);
+            return;
+        }
+
+
+        console.log(`[VALUE] Activated value ${card.value} on ${card.cn}`);
+
+        this.activeValueCard = {
+            card: card,
+            playerIndex: playerIndex,
+            cardId: card.id
+        };
+
+        this.activeValue = parsed;
+
+        // Update display to show active state
+        this.displayAllCards();
+    }
+
+    // Deactivate value selection
+    deactivateValueSelection() {
+        console.log('[VALUE] Deactivated value selection');
+        this.activeValueCard = null;
+        this.activeValue = null;
+        this.displayAllCards();
+    }
 
 
 
@@ -217,7 +217,7 @@ deactivateValueSelection() {
 
     }
 
-   
+
     applyPlayerPerspective() {
         const gamecontrolsection = document.querySelector('.game-controls-bar');
         const mainSection = document.querySelector('.main-section');
@@ -278,7 +278,7 @@ deactivateValueSelection() {
 
     }
 
-    
+
 
     setModDirection(stat, direction) {
         const popup = document.querySelector('.mod-value-popup');
@@ -321,7 +321,7 @@ deactivateValueSelection() {
             }
         }
 
-    } 
+    }
 
     setCardModDirection(stat, direction) {
         const popup = document.querySelector('.card-modification-popup');
@@ -339,8 +339,8 @@ deactivateValueSelection() {
             }
         }
 
-    } 
-        
+    }
+
 
     setCardFilter(filterType) {
         const popup = document.querySelector('.card-selection-popup');
@@ -414,7 +414,7 @@ deactivateValueSelection() {
             console.error('Player 2 deck not found!');
         }
 
-        
+
         this.assignCardIDs();
 
         this.hand[0] = [];
@@ -432,15 +432,15 @@ deactivateValueSelection() {
         this.applyPlayerPerspective();
 
 
-       for (let j = 0; j < 2; j++) {
-    for (let i = this.deck[j].length - 1; i >= 0; i--) {
-        if (this.deck[j][i].extra) {
-            const card = this.deck[j][i];
-            this.extraDeck[j].push(card);
-            this.deck[j].splice(i, 1);
+        for (let j = 0; j < 2; j++) {
+            for (let i = this.deck[j].length - 1; i >= 0; i--) {
+                if (this.deck[j][i].extra) {
+                    const card = this.deck[j][i];
+                    this.extraDeck[j].push(card);
+                    this.deck[j].splice(i, 1);
+                }
+            }
         }
-    }
-}
 
         // ✅ ADD THIS - Save original decks BEFORE any shuffling or drawing
         this.originalDeck[0] = this.deck[0].map(card => ({ ...card })); // Deep copy
@@ -495,12 +495,12 @@ deactivateValueSelection() {
     }
 
 
-// Quick transfer from deck/graveyard to field
-quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
-    console.log(`[QUICK TRANSFER] From ${sourceLocation} to ${destinationLocation}`);
-    this.showCardSelectionPopup(sourceLocation, destinationLocation, popupId);
+    // Quick transfer from deck/graveyard to field
+    quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
+        console.log(`[QUICK TRANSFER] From ${sourceLocation} to ${destinationLocation}`);
+        this.showCardSelectionPopup(sourceLocation, destinationLocation, popupId);
 
-}
+    }
 
 
     playTransferSound(sourceLocation) {
@@ -558,48 +558,48 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
 
-   playCardAudio(card) {
-    const indexedDBEnabled = localStorage.getItem('audio_indexeddb') !== 'false';
-    const ttsEnabled = localStorage.getItem('audio_tts') === 'true';
+    playCardAudio(card) {
+        const indexedDBEnabled = localStorage.getItem('audio_indexeddb') !== 'false';
+        const ttsEnabled = localStorage.getItem('audio_tts') === 'true';
 
-    // PRIORITY 1: IndexedDB
-    if (indexedDBEnabled) {
-        if (window.CARD_AUDIO_MAP && window.CARD_AUDIO_MAP[`${card.cn}.mp3`]) {
-            const audio = new Audio(window.CARD_AUDIO_MAP[`${card.cn}.mp3`]);
-            audio.volume = 0.5;
-            audio.play().catch(() => { if (ttsEnabled) this.playCardAudioTTS(card); });
-            return;
+        // PRIORITY 1: IndexedDB
+        if (indexedDBEnabled) {
+            if (window.CARD_AUDIO_MAP && window.CARD_AUDIO_MAP[`${card.cn}.mp3`]) {
+                const audio = new Audio(window.CARD_AUDIO_MAP[`${card.cn}.mp3`]);
+                audio.volume = 0.5;
+                audio.play().catch(() => { if (ttsEnabled) this.playCardAudioTTS(card); });
+                return;
+            }
+
+            // sessionStorage fallback
+            const audioMapStr = sessionStorage.getItem('mp_audioMap');
+            if (audioMapStr) {
+                try {
+                    const audioMap = JSON.parse(audioMapStr);
+                    if (audioMap[`${card.cn}.mp3`]) {
+                        const audio = new Audio(audioMap[`${card.cn}.mp3`]);
+                        audio.volume = 0.5;
+                        audio.play().catch(() => { if (ttsEnabled) this.playCardAudioTTS(card); });
+                        return;
+                    }
+                } catch (e) { }
+            }
         }
 
-        // sessionStorage fallback
-        const audioMapStr = sessionStorage.getItem('mp_audioMap');
-        if (audioMapStr) {
-            try {
-                const audioMap = JSON.parse(audioMapStr);
-                if (audioMap[`${card.cn}.mp3`]) {
-                    const audio = new Audio(audioMap[`${card.cn}.mp3`]);
-                    audio.volume = 0.5;
-                    audio.play().catch(() => { if (ttsEnabled) this.playCardAudioTTS(card); });
-                    return;
-                }
-            } catch (e) {}
-        }
+        // PRIORITY 2: Path
+        const audioBase = (window.CARD_AUDIO_PATH && window.CARD_AUDIO_PATH.endsWith('/'))
+            ? window.CARD_AUDIO_PATH
+            : (window.CARD_AUDIO_PATH ? window.CARD_AUDIO_PATH + '/' : 'cardsaudio/');
+
+        const audio = new Audio(`${audioBase}${card.cn}.mp3`);
+        console.log(`[AUDIO PATH] Trying: ${audio.src}`);
+        audio.volume = 0.5;
+        audio.play().catch(e => {
+            console.log(`[AUDIO PATH] Failed: ${e.message}`);
+            // PRIORITY 3: TTS
+            if (ttsEnabled) this.playCardAudioTTS(card);
+        });
     }
-
-    // PRIORITY 2: Path
-    const audioBase = (window.CARD_AUDIO_PATH && window.CARD_AUDIO_PATH.endsWith('/'))
-        ? window.CARD_AUDIO_PATH
-        : (window.CARD_AUDIO_PATH ? window.CARD_AUDIO_PATH + '/' : 'cardsaudio/');
-
-    const audio = new Audio(`${audioBase}${card.cn}.mp3`);
-    console.log(`[AUDIO PATH] Trying: ${audio.src}`);
-    audio.volume = 0.5;
-    audio.play().catch(e => {
-        console.log(`[AUDIO PATH] Failed: ${e.message}`);
-        // PRIORITY 3: TTS
-        if (ttsEnabled) this.playCardAudioTTS(card);
-    });
-}
 
     // NEW: TTS fallback method
     playCardAudioTTS(card) {
@@ -619,15 +619,15 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
         utterance.rate = 1.0;     // Speed (0.1 to 10)
         utterance.pitch = 1.0;    // Pitch (0 to 2)
         utterance.volume = 0.5;   // Volume (0 to 1)
-        utterance.lang = navigator.language ; // Use browser/system language
+        utterance.lang = navigator.language; // Use browser/system language
 
         // Optional: Select a specific voice
-      /*   const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-            // Try to find a good English voice
-            const preferredVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
-            utterance.voice = preferredVoice;
-        } */ 
+        /*   const voices = window.speechSynthesis.getVoices();
+          if (voices.length > 0) {
+              // Try to find a good English voice
+              const preferredVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+              utterance.voice = preferredVoice;
+          } */
 
         // Speak the card name
         window.speechSynthesis.speak(utterance);
@@ -636,7 +636,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
     toggleMonsterPosition(card, playerIndex) {
-        
+
         const cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === card.id);
 
         if (cardIndex === -1) {
@@ -644,7 +644,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             return false;
         }
 
-        
+
         const actualCard = this.monsterField[playerIndex][cardIndex];
 
         // ✅ Modify the ACTUAL card (not the parameter)
@@ -728,7 +728,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
         return false;
     }
 
-    sendSpellTrapToGraveyard(card, playerIndex,playAudio) {
+    sendSpellTrapToGraveyard(card, playerIndex, playAudio) {
         // Determine owner from card ID
         const ownerIndex = card.id && card.id.includes('p1') ? 1 : 0;
 
@@ -749,18 +749,18 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
-           if (playAudio == 1) {this.playCardAudio(removedCard);}
+            if (playAudio == 1) { this.playCardAudio(removedCard); }
 
             this.updateDisplay();
             this.displayAllCards();
             return true;
         }
-        return false; 
+        return false;
     }
 
 
     //  Send monster to graveyard with stat restoration
-    sendMonsterToGraveyard(card, playerIndex,playAudio) {
+    sendMonsterToGraveyard(card, playerIndex, playAudio) {
         // Determine owner from card ID (e.g., "5p1" = player 1, "12p2" = player 2)
         const ownerIndex = card.id && card.id.includes('p1') ? 1 : 0;
 
@@ -790,7 +790,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
-           if( playAudio ==1) { this.playCardAudio(removedCard); }
+            if (playAudio == 1) { this.playCardAudio(removedCard); }
 
             this.updateDisplay();
             this.displayAllCards();
@@ -800,7 +800,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
     flipCardFaceUp(card, playerIndex) {
-        
+
         let cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === card.id && !c.faceUp);
         let foundInMonsterField = cardIndex !== -1;
 
@@ -814,7 +814,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             return false;
         }
 
-        
+
         const actualCard = foundInMonsterField
             ? this.monsterField[playerIndex][cardIndex]
             : this.spellTrapField[playerIndex][cardIndex];
@@ -835,7 +835,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
     }
 
     flipCardFaceUpV2(card, playerIndex) {
-        
+
         let cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === card.id && !c.faceUp);
         let foundInMonsterField = cardIndex !== -1;
 
@@ -849,7 +849,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
             return false;
         }
 
-        
+
         const actualCard = foundInMonsterField
             ? this.monsterField[playerIndex][cardIndex]
             : this.spellTrapField[playerIndex][cardIndex];
@@ -983,11 +983,11 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
         this.updateBattleStatus(`${attacker.cn} attacks ${target.cn}!`);
 
         this.calculateBattleDamage(attacker, this.selectedAttacker.playerIndex, target, this.selectedTarget.playerIndex);
-       
+
     }
 
 
-    
+
     calculateBattleDamage(attacker, attackerPlayer, defender, defenderPlayer) {
         const attackerATK = attacker.ak || 0;
         let battleResult;
@@ -1007,7 +1007,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
                 damage = defenderATK - attackerATK;
                 this.modifyLP(attackerPlayer, -damage);
                 battleResult = `${defender.cn} wins! ${damage} damage dealt. ${attacker.cn} can be sent to graveyard manually.`;
-                
+
                 //this.sendMonsterToGraveyard(attacker, attackerPlayer);
                 this.addDestroyedIndicatorByCard(attacker, attackerPlayer);
             } else {
@@ -1037,7 +1037,7 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
         }
 
         console.log(battleResult);
-       
+
         // Show damage popup if damage was dealt
         if (damage > 0) {
             this.showDamagePopup(damage);
@@ -1072,14 +1072,14 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
                     if (cardElement.querySelector('.destroyed-indicator')) {
                         return; // Already has indicator
                     }
-                
+
                     const indicator = document.createElement('div');
                     indicator.classList.add('destroyed-indicator');
                     indicator.textContent = '💀';
                     cardElement.appendChild(indicator);
                     cardElement.style.opacity = '0.6';
                     cardElement.style.filter = 'grayscale(50%)';
-                    
+
                 }
             });
         });
@@ -1110,51 +1110,51 @@ quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
         }, 2000);
     }
 
-// Apply value effect to LP
-applyValueToLP(targetPlayerIndex) {
-    if (!this.activeValue) {
-        console.log('[VALUE LP] No active value');
-        return;
+    // Apply value effect to LP
+    applyValueToLP(targetPlayerIndex) {
+        if (!this.activeValue) {
+            console.log('[VALUE LP] No active value');
+            return;
+        }
+
+        const val = this.activeValue;
+        let newLP = 0;
+        let lpChange = 0;
+
+        // ✅ Calculate actual value if it's a luck-based value
+        let actualValue = val.value;
+        if (val.isLuck) {
+            const diceResult = this.calculateDiceResult();
+            actualValue = val.isPositive ? diceResult * 100 : diceResult * -100;
+            console.log(`[VALUE LP] Luck roll: ${diceResult} → ${actualValue}`);
+
+            // ✅ Show dice result to user
+            //  this.showDiceResult(diceResult);
+        }
+
+        // Calculate LP change based on value type
+        if (val.isMultiplier) {
+            const currentLP = this.lp[targetPlayerIndex];
+            newLP = Math.max(0, Math.round(currentLP * actualValue));
+            lpChange = newLP - currentLP;
+            console.log(`[VALUE LP] Multiplying LP by ${actualValue}: ${currentLP} → ${newLP}`);
+        } else {
+            lpChange = actualValue;
+            console.log(`[VALUE LP] Applying ${lpChange > 0 ? '+' : ''}${lpChange} LP`);
+        }
+
+        console.log(`[VALUE LP] Applying to Player ${targetPlayerIndex + 1}`);
+
+        this.modifyLP(targetPlayerIndex, lpChange);
+
+        if (lpChange !== 0) {
+            this.showDamagePopup(-lpChange);
+        }
+
+        // this.deactivateValueSelection();
+
+        console.log(`[VALUE LP] Player ${targetPlayerIndex + 1} LP now: ${this.lp[targetPlayerIndex]}`);
     }
-    
-    const val = this.activeValue;
-    let newLP = 0;
-    let lpChange = 0;
-    
-    // ✅ Calculate actual value if it's a luck-based value
-    let actualValue = val.value;
-    if (val.isLuck) {
-        const diceResult = this.calculateDiceResult();
-        actualValue = val.isPositive ? diceResult * 100 : diceResult * -100;
-        console.log(`[VALUE LP] Luck roll: ${diceResult} → ${actualValue}`);
-        
-        // ✅ Show dice result to user
-      //  this.showDiceResult(diceResult);
-    }
-    
-    // Calculate LP change based on value type
-    if (val.isMultiplier) {
-        const currentLP = this.lp[targetPlayerIndex];
-        newLP = Math.max(0, Math.round(currentLP * actualValue));
-        lpChange = newLP - currentLP;
-        console.log(`[VALUE LP] Multiplying LP by ${actualValue}: ${currentLP} → ${newLP}`);
-    } else {
-        lpChange = actualValue;
-        console.log(`[VALUE LP] Applying ${lpChange > 0 ? '+' : ''}${lpChange} LP`);
-    }
-    
-    console.log(`[VALUE LP] Applying to Player ${targetPlayerIndex + 1}`);
-    
-    this.modifyLP(targetPlayerIndex, lpChange);
-    
-    if (lpChange !== 0) {
-        this.showDamagePopup(-lpChange);
-    }
-    
-    // this.deactivateValueSelection();
-    
-    console.log(`[VALUE LP] Player ${targetPlayerIndex + 1} LP now: ${this.lp[targetPlayerIndex]}`);
-}
 
 
     // LP modification with history tracking
@@ -1197,10 +1197,10 @@ applyValueToLP(targetPlayerIndex) {
 
     showDamagePopup(damage) {
         const popup = document.createElement('div');
-        
+
         popup.textContent = `${-damage}`;
         popup.classList.add('damage-popup')
-            
+
         document.body.appendChild(popup);
 
         setTimeout(() => {
@@ -1397,7 +1397,7 @@ applyValueToLP(targetPlayerIndex) {
             cardElement.appendChild(defenseIndicator);
         }
 
-        
+
 
         return cardElement;
     }
@@ -1410,7 +1410,7 @@ applyValueToLP(targetPlayerIndex) {
         // ✅ Store card ID as data attribute
         if (card.id) {
             cardDiv.dataset.cardId = card.id;
-           // console.log('✅ Stored cardId on element:', card.id);
+            // console.log('✅ Stored cardId on element:', card.id);
         } else {
             console.error('❌ Card has NO ID!', card.cn);
         }
@@ -1461,7 +1461,7 @@ applyValueToLP(targetPlayerIndex) {
         const nameSection = document.createElement('div');
 
         if (card.clr == 1) { nameSection.className = 'fusion' }
-        else if (card.clr ==2 ) {nameSection.className = 'ritual' }
+        else if (card.clr == 2) { nameSection.className = 'ritual' }
         else { nameSection.className = 'card-name'; };
 
         const cnClass = document.createElement('span');
@@ -1478,36 +1478,36 @@ applyValueToLP(targetPlayerIndex) {
         //nameSection.appendChild(atrClass);
 
         // ✅ ADD VALUE DIV if card has value property
-if (card.value && card.faceUp !== false) {
-    const valueDiv = document.createElement('div');
-    valueDiv.className = 'card-value-div';
-    
-    // Check if this card is currently active
-    const isActive = this.activeValueCard && 
-                     this.activeValueCard.cardId === card.id &&
-                     this.activeValueCard.playerIndex === (player === 1 ? 0 : 1);
-    
-    if (isActive) {
-        valueDiv.classList.add('value-active');
-    }
-    
-    // Click handler for value div
-    valueDiv.addEventListener('click', (e) => {
-        e.stopPropagation(); // Don't trigger card click
-        
-        if (this.activeValueCard && this.activeValueCard.cardId === card.id) {
-            // Clicking same card - deactivate
-            this.deactivateValueSelection();
-        } else {
-            // Activate this card's value
-            this.activateValueSelection(card, player === 1 ? 0 : 1);
-        }
-    });
-    
-    nameSection.appendChild(valueDiv);
-}
+        if (card.value && card.faceUp !== false) {
+            const valueDiv = document.createElement('div');
+            valueDiv.className = 'card-value-div';
 
-const trSection = document.createElement('div');
+            // Check if this card is currently active
+            const isActive = this.activeValueCard &&
+                this.activeValueCard.cardId === card.id &&
+                this.activeValueCard.playerIndex === (player === 1 ? 0 : 1);
+
+            if (isActive) {
+                valueDiv.classList.add('value-active');
+            }
+
+            // Click handler for value div
+            valueDiv.addEventListener('click', (e) => {
+                e.stopPropagation(); // Don't trigger card click
+
+                if (this.activeValueCard && this.activeValueCard.cardId === card.id) {
+                    // Clicking same card - deactivate
+                    this.deactivateValueSelection();
+                } else {
+                    // Activate this card's value
+                    this.activateValueSelection(card, player === 1 ? 0 : 1);
+                }
+            });
+
+            nameSection.appendChild(valueDiv);
+        }
+
+        const trSection = document.createElement('div');
         trSection.className = 'tr-class';
         if (card.faceUp === false && (location === 'field' || location === 'spelltrapfield')) {
             trSection.textContent = '';
@@ -1521,7 +1521,7 @@ const trSection = document.createElement('div');
 
         // Image section with real card images or emojis
 
-           const imageSection = document.createElement('div');
+        const imageSection = document.createElement('div');
         imageSection.className = 'card-image';
 
         if (card.faceUp === false && (location === 'field' || location === 'spelltrapfield') && !this.peekMode) {
@@ -1537,8 +1537,8 @@ const trSection = document.createElement('div');
                 const img = document.createElement('img');
                 img.src = window.CARD_IMAGE_MAP[`${card.cn}.jpg`];
                 img.alt = card.cn;
-                img.classList.add('card-imageStyle') ;
-    
+                img.classList.add('card-imageStyle');
+
 
                 img.onerror = function () {
                     // Image failed - fallback to emoji if available
@@ -1546,7 +1546,7 @@ const trSection = document.createElement('div');
                         imageSection.innerHTML = '';
                         imageSection.textContent = card.emoji;
                         imageSection.style.fontSize = '100px';
-                       // cardDiv.classList.add('alter-emoji');
+                        // cardDiv.classList.add('alter-emoji');
                     } else {
                         imageSection.textContent = this.getCardType(card);
                         imageSection.style.backgroundColor = '#4a4a4a';
@@ -1555,7 +1555,7 @@ const trSection = document.createElement('div');
 
                 imageSection.appendChild(img);
                 imageSection.style.backgroundColor = 'transparent';
-               // console.log(`✅ Using image from IndexedDB: ${card.cn}.jpg`);
+                // console.log(`✅ Using image from IndexedDB: ${card.cn}.jpg`);
 
                 // PRIORITY 2: Check sessionStorage (legacy support)
             } else {
@@ -1571,7 +1571,7 @@ const trSection = document.createElement('div');
                     const img = document.createElement('img');
                     img.src = imageMap[`${card.cn}.jpg`];
                     img.alt = card.cn;
-          img.classList.add('card-imageStyle') ;
+                    img.classList.add('card-imageStyle');
 
                     img.onerror = function () {
                         if (card.emoji) {
@@ -1604,7 +1604,7 @@ const trSection = document.createElement('div');
                         : (window.CARD_IMAGE_PATH ? window.CARD_IMAGE_PATH + '/' : 'images/');
                     img.src = `${imgBase}${card.cn}.jpg`;
                     img.alt = card.cn;
-                    img.classList.add('card-imageStyle') ;
+                    img.classList.add('card-imageStyle');
 
                     img.onerror = function () {
                         if (card.emoji) {
@@ -1639,7 +1639,7 @@ const trSection = document.createElement('div');
         } else if (this.getCardType(card) === 'trap') {
             akdfSection.textContent = 'trap';
         }
-        else {akdfSection.textContent = 'spell';} 
+        else { akdfSection.textContent = 'spell'; }
 
         cardDiv.appendChild(nameSection);
         cardDiv.appendChild(trSection);
@@ -1711,7 +1711,7 @@ const trSection = document.createElement('div');
                 this.modifyCardStatsByDoubleClick(card.id, playerIndex);
                 return; // Don't send to graveyard
             }
-            else if(this.activeValue !==null ) {return;}
+            else if (this.activeValue !== null) { return; }
 
             // Normal double-click behavior (send to graveyard)
             // const audio = new Audio('sfx/graveyard.mp3');
@@ -1720,11 +1720,11 @@ const trSection = document.createElement('div');
                 this.handleHandCardDoubleClick(card, playerIndex);
             } else if (location === 'field') {
                 if (this.getCardType(card) === 'monster') {
-                    this.sendMonsterToGraveyard(card, playerIndex,1);
+                    this.sendMonsterToGraveyard(card, playerIndex, 1);
                     this.playSoundEffect('graveyard.mp3');
                 }
             } else if (location === 'spelltrapfield') {
-                this.sendSpellTrapToGraveyard(card, playerIndex,1);
+                this.sendSpellTrapToGraveyard(card, playerIndex, 1);
                 this.playSoundEffect('graveyard.mp3');
             }
         });
@@ -1733,47 +1733,47 @@ const trSection = document.createElement('div');
     }
 
     handleHandCardClick(card, playerIndex) {
-    console.log(`Single-click on ${card.cn} in hand`);
+        console.log(`Single-click on ${card.cn} in hand`);
 
-    // Discard mode: show on field briefly, then send to graveyard
-    if (this.activeValue && this.activeValue.type === 'discard') {
-        this.discardCardFromHand(card, playerIndex);
-        
-        return;
-    }
+        // Discard mode: show on field briefly, then send to graveyard
+        if (this.activeValue && this.activeValue.type === 'discard') {
+            this.discardCardFromHand(card, playerIndex);
 
-    if (this.getCardType(card) === 'monster') {
-        if (this.playMonster(card, playerIndex, 'attack', true)) {
-            console.log(`${card.cn} played in Attack Position!`);
+            return;
         }
-    } else {
-        if (this.playSpellTrapFaceUp(card, playerIndex)) {
-            console.log(`${card.cn} activated face-up!`);
-        }
-    }
-}
 
-discardCardFromHand(card, playerIndex) {
-    const isMonster = this.getCardType(card) === 'monster';
-
-    // Step 1: move card from hand → field visually
-    if (isMonster) {
-        this.playMonster(card, playerIndex, 'attack', true);
-    } else {
-        this.playSpellTrapFaceUp(card, playerIndex);
-    }
-
-    // Step 2: after 1000ms, send it to the graveyard
-    setTimeout(() => {
-        if (isMonster) {
-            this.sendMonsterToGraveyard(card, playerIndex,0);
+        if (this.getCardType(card) === 'monster') {
+            if (this.playMonster(card, playerIndex, 'attack', true)) {
+                console.log(`${card.cn} played in Attack Position!`);
+            }
         } else {
-            this.sendSpellTrapToGraveyard(card, playerIndex,0);
+            if (this.playSpellTrapFaceUp(card, playerIndex)) {
+                console.log(`${card.cn} activated face-up!`);
+            }
         }
-        this.playSoundEffect('graveyard.mp3');
-        console.log(`${card.cn} discarded to graveyard after delay`);
-    }, 1000);
-}
+    }
+
+    discardCardFromHand(card, playerIndex) {
+        const isMonster = this.getCardType(card) === 'monster';
+
+        // Step 1: move card from hand → field visually
+        if (isMonster) {
+            this.playMonster(card, playerIndex, 'attack', true);
+        } else {
+            this.playSpellTrapFaceUp(card, playerIndex);
+        }
+
+        // Step 2: after 1000ms, send it to the graveyard
+        setTimeout(() => {
+            if (isMonster) {
+                this.sendMonsterToGraveyard(card, playerIndex, 0);
+            } else {
+                this.sendSpellTrapToGraveyard(card, playerIndex, 0);
+            }
+            this.playSoundEffect('graveyard.mp3');
+            console.log(`${card.cn} discarded to graveyard after delay`);
+        }, 1000);
+    }
 
 
     // FIXED: Double-click from hand = face-down
@@ -1821,91 +1821,91 @@ discardCardFromHand(card, playerIndex) {
     }
 
     handleFieldCardClick(card, playerIndex) {
-         console.log(`🎯 [FIELD CLICK] Card: ${card.cn}, Player: ${playerIndex}`);
-    console.log(`🎯 [FIELD CLICK] Active value exists? ${this.activeValue !== null}`);
-    console.log(`🎯 [FIELD CLICK] Active value:`, this.activeValue);
-    console.log(`🎯 [FIELD CLICK] Suppressed? ${this.__suppressEmit}`); // ✅ ADD THIS
+        console.log(`🎯 [FIELD CLICK] Card: ${card.cn}, Player: ${playerIndex}`);
+        console.log(`🎯 [FIELD CLICK] Active value exists? ${this.activeValue !== null}`);
+        console.log(`🎯 [FIELD CLICK] Active value:`, this.activeValue);
+        console.log(`🎯 [FIELD CLICK] Suppressed? ${this.__suppressEmit}`); // ✅ ADD THIS
 
         const currentPlayerIndex = this.turn === 1 ? 0 : 1;
 
-   // In handleFieldCardClick(), in the value passing section:
-if (this.activeValue && this.getCardType(card) === 'monster') {
-    console.log(`💥 [VALUE PASS] Attempting to pass value to ${card.cn}`);
-    
-    let targetCard = null;
-    let foundPlayerIndex = -1;
-    
-    for (let pIdx = 0; pIdx < 2; pIdx++) {
-        const cardIndex = this.monsterField[pIdx].findIndex(c => c.id === card.id);
-        if (cardIndex !== -1) {
-            targetCard = this.monsterField[pIdx][cardIndex];
-            foundPlayerIndex = pIdx;
-            console.log(`💥 [VALUE PASS] Found card in player ${pIdx + 1} field at index ${cardIndex}`);
-            break;
-        }
-    }
-    
-    if (targetCard) {
-        console.log(`💥 [VALUE PASS] Target card before: ATK=${targetCard.ak}, DEF=${targetCard.df}`);
-        
-        if (!targetCard.originalAk) targetCard.originalAk = targetCard.ak;
-        if (!targetCard.originalDf) targetCard.originalDf = targetCard.df;
-        
-        const val = this.activeValue;
-        
-        // ✅ Calculate actual value if it's a luck-based value
-        let actualValue = val.value;
-        if (val.isLuck) {
-            const diceResult = this.calculateDiceResult();
-            actualValue = val.isPositive ? diceResult * 100 : diceResult * -100;
-            console.log(`💥 [VALUE PASS] Luck roll: ${diceResult} → ${actualValue}`);
-            
-            // ✅ Show dice result to user
-           // this.showDiceResult(diceResult);
+        // In handleFieldCardClick(), in the value passing section:
+        if (this.activeValue && this.getCardType(card) === 'monster') {
+            console.log(`💥 [VALUE PASS] Attempting to pass value to ${card.cn}`);
+
+            let targetCard = null;
+            let foundPlayerIndex = -1;
+
+            for (let pIdx = 0; pIdx < 2; pIdx++) {
+                const cardIndex = this.monsterField[pIdx].findIndex(c => c.id === card.id);
+                if (cardIndex !== -1) {
+                    targetCard = this.monsterField[pIdx][cardIndex];
+                    foundPlayerIndex = pIdx;
+                    console.log(`💥 [VALUE PASS] Found card in player ${pIdx + 1} field at index ${cardIndex}`);
+                    break;
+                }
+            }
+
+            if (targetCard) {
+                console.log(`💥 [VALUE PASS] Target card before: ATK=${targetCard.ak}, DEF=${targetCard.df}`);
+
+                if (!targetCard.originalAk) targetCard.originalAk = targetCard.ak;
+                if (!targetCard.originalDf) targetCard.originalDf = targetCard.df;
+
+                const val = this.activeValue;
+
+                // ✅ Calculate actual value if it's a luck-based value
+                let actualValue = val.value;
+                if (val.isLuck) {
+                    const diceResult = this.calculateDiceResult();
+                    actualValue = val.isPositive ? diceResult * 100 : diceResult * -100;
+                    console.log(`💥 [VALUE PASS] Luck roll: ${diceResult} → ${actualValue}`);
+
+                    // ✅ Show dice result to user
+                    // this.showDiceResult(diceResult);
+                }
+
+                if (val.type === 'swap') {
+                    const tempAk = targetCard.ak;
+                    targetCard.ak = targetCard.df;
+                    targetCard.df = tempAk;
+                    console.log(`${targetCard.cn} ATK/DEF swapped → ATK: ${targetCard.ak}, DEF: ${targetCard.df}`);
+
+                }
+
+                // ✅ Apply ATK modification
+                if (val.type === 'a' || val.type === 'b' || val.type === 'l') {
+                    if (val.isMultiplier) {
+                        targetCard.ak = Math.max(0, Math.round(targetCard.ak * actualValue));
+                    } else {
+                        targetCard.ak = Math.max(0, targetCard.ak + actualValue);
+                    }
+                    console.log(`💥 [VALUE PASS] ATK modified to ${targetCard.ak}`);
+                }
+
+                // ✅ Apply DEF modification
+                if (val.type === 'd' || val.type === 'b' || val.type === 'l') {
+                    if (val.isMultiplier) {
+                        targetCard.df = Math.max(0, Math.round(targetCard.df * actualValue));
+                    } else {
+                        targetCard.df = Math.max(0, targetCard.df + actualValue);
+                    }
+                    console.log(`💥 [VALUE PASS] DEF modified to ${targetCard.df}`);
+                }
+
+                console.log(`💥 [VALUE PASS] Target card after: ATK=${targetCard.ak}, DEF=${targetCard.df}`);
+
+                this.playCardAudio(targetCard);
+                this.playSoundEffect('equip.mp3');
+                // this.deactivateValueSelection(); lol
+                this.updateDisplay();
+                this.displayAllCards();
+            } else {
+                console.log(`💥 [VALUE PASS] Card ${card.cn} not found in any monster field!`);
+            }
+
+            return;
         }
 
-        if (val.type === 'swap') {
-    const tempAk = targetCard.ak;
-    targetCard.ak = targetCard.df;
-    targetCard.df = tempAk;
-    console.log(`${targetCard.cn} ATK/DEF swapped → ATK: ${targetCard.ak}, DEF: ${targetCard.df}`);
-    
-}
-        
-        // ✅ Apply ATK modification
-        if (val.type === 'a' || val.type === 'b' || val.type === 'l') {
-            if (val.isMultiplier) {
-                targetCard.ak = Math.max(0, Math.round(targetCard.ak * actualValue));
-            } else {
-                targetCard.ak = Math.max(0, targetCard.ak + actualValue);
-            }
-            console.log(`💥 [VALUE PASS] ATK modified to ${targetCard.ak}`);
-        }
-        
-        // ✅ Apply DEF modification
-        if (val.type === 'd' || val.type === 'b' || val.type === 'l') {
-            if (val.isMultiplier) {
-                targetCard.df = Math.max(0, Math.round(targetCard.df * actualValue));
-            } else {
-                targetCard.df = Math.max(0, targetCard.df + actualValue);
-            }
-            console.log(`💥 [VALUE PASS] DEF modified to ${targetCard.df}`);
-        }
-        
-        console.log(`💥 [VALUE PASS] Target card after: ATK=${targetCard.ak}, DEF=${targetCard.df}`);
-        
-        this.playCardAudio(targetCard);
-        this.playSoundEffect('equip.mp3');
-        // this.deactivateValueSelection(); lol
-        this.updateDisplay();
-        this.displayAllCards();
-    } else {
-        console.log(`💥 [VALUE PASS] Card ${card.cn} not found in any monster field!`);
-    }
-    
-    return;
-}
-    
 
         // Transfer to hand if direction button active
         if (this.activeTransferPlayer !== null) {
@@ -2020,7 +2020,7 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
             }
         }
 
-        else if (1==1) {
+        else if (1 == 1) {
             // Your card
             if (!card.faceUp) {
                 // FIXED: Face-down card flipped face-up (monsters go to ATTACK position)
@@ -2188,7 +2188,7 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
             this.updateBattleStatus("Cannot attack on the first turn!");
         } else if (attackingMonsters.length === 0) {
             this.updateBattleStatus("No monsters in Attack Position!");
-        } else if(this.turnCounter ===2)  {
+        } else if (this.turnCounter === 2) {
             this.updateBattleStatus("Battle Phase! Multiple attacks allowed. Select attacker, then target, then confirm.");
         }
 
@@ -2251,7 +2251,7 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
         this.updateGameInfo();
         console.log('End Phase completed');
 
-       
+
     }
 
 
@@ -2535,7 +2535,7 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
         </div> 
     `;
 
-      popup.classList.add('popupText')  ;
+        popup.classList.add('popupText');
 
         document.body.appendChild(popup);
 
@@ -2649,8 +2649,8 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
         </div>
     `;
 
-        popup.classList.add('popupText')  ; 
-    
+        popup.classList.add('popupText');
+
 
         document.body.appendChild(popup);
 
@@ -2672,36 +2672,36 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
     }
 
     showCardSelectionPopup(sourceLocation, destinationLocation, popupId = 'default') {
-    console.log('showCardSelectionPopup called');
+        console.log('showCardSelectionPopup called');
 
-    // ✅ If called without parameters, try to get from popup
-    if (!sourceLocation || !destinationLocation) {
-        const bringPopup = document.querySelector('.bring-cards-popup');
-        if (!bringPopup) {
-            console.error('Bring cards popup not found');
+        // ✅ If called without parameters, try to get from popup
+        if (!sourceLocation || !destinationLocation) {
+            const bringPopup = document.querySelector('.bring-cards-popup');
+            if (!bringPopup) {
+                console.error('Bring cards popup not found');
+                return;
+            }
+            sourceLocation = bringPopup.querySelector('#source-location').value;
+            destinationLocation = bringPopup.querySelector('#destination-location').value;
+        }
+
+        console.log('Source:', sourceLocation, 'Destination:', destinationLocation);
+
+        const sourceCards = this.getCardsFromLocation(sourceLocation);
+        if (sourceCards.length === 0) {
+            //  alert('No cards in selected source location!');
             return;
         }
-        sourceLocation = bringPopup.querySelector('#source-location').value;
-        destinationLocation = bringPopup.querySelector('#destination-location').value;
-    }
 
-    console.log('Source:', sourceLocation, 'Destination:', destinationLocation);
+        const popup = document.createElement('div');
+        popup.className = 'card-selection-popup';
+        popup.id = `card-selection-popup-${popupId}`; // ✅ Unique ID
 
-    const sourceCards = this.getCardsFromLocation(sourceLocation);
-    if (sourceCards.length === 0) {
-      //  alert('No cards in selected source location!');
-        return;
-    }
+        // Store these values on the popup for later use
+        popup.dataset.sourceLocation = sourceLocation;
+        popup.dataset.destinationLocation = destinationLocation;
 
-    const popup = document.createElement('div');
-    popup.className = 'card-selection-popup';
-    popup.id = `card-selection-popup-${popupId}`; // ✅ Unique ID
-
-    // Store these values on the popup for later use
-    popup.dataset.sourceLocation = sourceLocation;
-    popup.dataset.destinationLocation = destinationLocation;
-
-    let html = `
+        let html = `
         <div class="popup-content">
             <div class="popup-header">
                 <h3>Select Cards: ${sourceLocation} → ${destinationLocation}</h3>
@@ -2716,28 +2716,28 @@ if (this.activeValue && this.getCardType(card) === 'monster') {
             </div>
             <div class="card-selection">`;
 
-    sourceCards.forEach((card, index) => {
-        const type = this.getCardType ? this.getCardType(card) : 'unknown';
+        sourceCards.forEach((card, index) => {
+            const type = this.getCardType ? this.getCardType(card) : 'unknown';
 
-        let labelContent = card.cn;
-        if (type === 'monster') {
-            labelContent += `<br><small>ATK ${card.ak || 0} / DEF ${card.df || 0}</small>`;
-        } else {
-            labelContent += `<br><small>${card.atr ? card.atr.toUpperCase() : 'Unknown'}</small>`;
-        }
+            let labelContent = card.cn;
+            if (type === 'monster') {
+                labelContent += `<br><small>ATK ${card.ak || 0} / DEF ${card.df || 0}</small>`;
+            } else {
+                labelContent += `<br><small>${card.atr ? card.atr.toUpperCase() : 'Unknown'}</small>`;
+            }
 
-       let imageUrl;
-if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
-    imageUrl = window.CARD_IMAGE_MAP[`${card.cn}.jpg`];
-} else {
-    // ✅ Use the EXACT same logic as createYuGiOhCard
-    const imgBase = (window.CARD_IMAGE_PATH && window.CARD_IMAGE_PATH.endsWith('/'))
-        ? window.CARD_IMAGE_PATH
-        : (window.CARD_IMAGE_PATH ? window.CARD_IMAGE_PATH + '/' : 'images/');
-    imageUrl = `${imgBase}${card.cn}.jpg`;
-    console.log(`${imageUrl}`) ;
-}
-        html += `
+            let imageUrl;
+            if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
+                imageUrl = window.CARD_IMAGE_MAP[`${card.cn}.jpg`];
+            } else {
+                // ✅ Use the EXACT same logic as createYuGiOhCard
+                const imgBase = (window.CARD_IMAGE_PATH && window.CARD_IMAGE_PATH.endsWith('/'))
+                    ? window.CARD_IMAGE_PATH
+                    : (window.CARD_IMAGE_PATH ? window.CARD_IMAGE_PATH + '/' : 'images/');
+                imageUrl = `${imgBase}${card.cn}.jpg`;
+                console.log(`${imageUrl}`);
+            }
+            html += `
       <div class="selectable-card" data-type="${type}" data-index="${index}">
         <input type="checkbox" id="card-${popupId}-${index}" 
                style="
@@ -2758,9 +2758,9 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         </label>
       </div>
     `;
-    });
+        });
 
-    html += `
+        html += `
             </div>
             <div class="selection-buttons">
                  <button id="confirm-transfer-btn-${popupId}">OK</button>
@@ -2768,69 +2768,69 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
             </div>
         </div>
     `;
-    popup.innerHTML = html;
-    popup.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2100;';
-    document.body.appendChild(popup);
-    console.log('Popup appended with ID:', popupId);
+        popup.innerHTML = html;
+        popup.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2100;';
+        document.body.appendChild(popup);
+        console.log('Popup appended with ID:', popupId);
 
-    // ✅ Use unique IDs for event listeners
-    const confirmBtn = popup.querySelector(`#confirm-transfer-btn-${popupId}`);
-    const cancelBtn = popup.querySelector(`#cancel-transfer-btn-${popupId}`);
+        // ✅ Use unique IDs for event listeners
+        const confirmBtn = popup.querySelector(`#confirm-transfer-btn-${popupId}`);
+        const cancelBtn = popup.querySelector(`#cancel-transfer-btn-${popupId}`);
 
-    confirmBtn.addEventListener('click', () => {
-        const src = popup.dataset.sourceLocation;
-        const dest = popup.dataset.destinationLocation;
+        confirmBtn.addEventListener('click', () => {
+            const src = popup.dataset.sourceLocation;
+            const dest = popup.dataset.destinationLocation;
 
-        this.confirmCardTransfer(src, dest, popupId); // ✅ Pass popupId
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        popup.remove();
-    });
-
-    // Attach filters after append
-    const filterButtons = popup.querySelectorAll('.filter-btn');
-    const selectableCards = popup.querySelectorAll('.selectable-card');
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const filterType = btn.dataset.type;
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            selectableCards.forEach(cardEl => {
-                const cardType = cardEl.dataset.type;
-                if (filterType === 'all' || filterType === cardType) {
-                    cardEl.classList.remove('hidden');
-                } else {
-                    cardEl.classList.add('hidden');
-                }
-            });
-         // ✅ AUTO-SORT A-Z after filtering
-        const container = popup.querySelector('.card-selection');
-        if (container) {
-            const visibleCards = Array.from(container.querySelectorAll('.selectable-card:not(.hidden)'));
-            const hiddenCards = Array.from(container.querySelectorAll('.selectable-card.hidden'));
-            
-            // Sort visible cards A-Z
-            visibleCards.sort((a, b) => {
-                const nameA = a.querySelector('label').textContent.trim().toLowerCase();
-                const nameB = b.querySelector('label').textContent.trim().toLowerCase();
-                return nameA.localeCompare(nameB);
-            });
-            
-            // Clear and re-append: sorted visible cards first, then hidden cards
-            container.innerHTML = '';
-            visibleCards.forEach(card => container.appendChild(card));
-            hiddenCards.forEach(card => container.appendChild(card));
-        }
-
-
+            this.confirmCardTransfer(src, dest, popupId); // ✅ Pass popupId
         });
-    });
 
-    
-}
+        cancelBtn.addEventListener('click', () => {
+            popup.remove();
+        });
+
+        // Attach filters after append
+        const filterButtons = popup.querySelectorAll('.filter-btn');
+        const selectableCards = popup.querySelectorAll('.selectable-card');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const filterType = btn.dataset.type;
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                selectableCards.forEach(cardEl => {
+                    const cardType = cardEl.dataset.type;
+                    if (filterType === 'all' || filterType === cardType) {
+                        cardEl.classList.remove('hidden');
+                    } else {
+                        cardEl.classList.add('hidden');
+                    }
+                });
+                // ✅ AUTO-SORT A-Z after filtering
+                const container = popup.querySelector('.card-selection');
+                if (container) {
+                    const visibleCards = Array.from(container.querySelectorAll('.selectable-card:not(.hidden)'));
+                    const hiddenCards = Array.from(container.querySelectorAll('.selectable-card.hidden'));
+
+                    // Sort visible cards A-Z
+                    visibleCards.sort((a, b) => {
+                        const nameA = a.querySelector('label').textContent.trim().toLowerCase();
+                        const nameB = b.querySelector('label').textContent.trim().toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    });
+
+                    // Clear and re-append: sorted visible cards first, then hidden cards
+                    container.innerHTML = '';
+                    visibleCards.forEach(card => container.appendChild(card));
+                    hiddenCards.forEach(card => container.appendChild(card));
+                }
+
+
+            });
+        });
+
+
+    }
 
 
     getCardsFromLocation(location) {
@@ -2852,36 +2852,36 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
     }
 
     confirmCardTransfer(sourceLocation, destinationLocation, popupId = 'default') {
-    const popup = document.getElementById(`card-selection-popup-${popupId}`);
-    if (!popup) {
-        console.error('Popup not found:', popupId);
-        return;
-    }
-    
-    const selectedIndices = [];
-    const checkboxes = popup.querySelectorAll('input[type="checkbox"]:checked');
+        const popup = document.getElementById(`card-selection-popup-${popupId}`);
+        if (!popup) {
+            console.error('Popup not found:', popupId);
+            return;
+        }
 
-    checkboxes.forEach(cb => {
-        // ✅ Extract index from ID like "card-grave1-5"
-        const parts = cb.id.split('-');
-        const index = parseInt(parts[parts.length - 1]);
-        selectedIndices.push(index);
-    });
+        const selectedIndices = [];
+        const checkboxes = popup.querySelectorAll('input[type="checkbox"]:checked');
 
-    if (selectedIndices.length === 0) {
-        alert('Please select at least one card!');
-        return;
-    }
+        checkboxes.forEach(cb => {
+            // ✅ Extract index from ID like "card-grave1-5"
+            const parts = cb.id.split('-');
+            const index = parseInt(parts[parts.length - 1]);
+            selectedIndices.push(index);
+        });
 
-    // If destination is field, ask for face-up/face-down choice
-    if (destinationLocation.includes('field')) {
-        this.showFieldPlacementChoice(selectedIndices, sourceLocation, destinationLocation);
-        popup.remove();
-    } else {
-        this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, true, 'attack');
-        popup.remove();
+        if (selectedIndices.length === 0) {
+            alert('Please select at least one card!');
+            return;
+        }
+
+        // If destination is field, ask for face-up/face-down choice
+        if (destinationLocation.includes('field')) {
+            this.showFieldPlacementChoice(selectedIndices, sourceLocation, destinationLocation);
+            popup.remove();
+        } else {
+            this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, true, 'attack');
+            popup.remove();
+        }
     }
-}
 
     // Show face-up/face-down choice popup for field placement
     showFieldPlacementChoice(selectedIndices, sourceLocation, destinationLocation) {
@@ -2931,13 +2931,13 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         faceUpBtn.addEventListener('click', () => {
             this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, true, 'attack');
             choicePopup.remove();
-            
+
         });
 
         faceDownBtn.addEventListener('click', () => {
             this.executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, false, 'defense');
             choicePopup.remove();
-            
+
         });
 
         cancelBtn.addEventListener('click', () => {
@@ -2947,8 +2947,8 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
 
     // Execute card transfer with specified face-up/face-down state
     executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, faceUp, position) {
-               // Close all popups
-               this.deactivateValueSelection();
+        // Close all popups
+        this.deactivateValueSelection();
         document.querySelectorAll('.card-selection-popup, .bring-cards-popup, .field-choice-popup').forEach(popup => popup.remove());
 
         const sourceCards = this.getCardsFromLocation(sourceLocation);
@@ -2983,10 +2983,11 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
                     if (!card.originalDf) card.originalDf = card.df;
                 }
                 if (sourceLocation.includes('grave')) {
-                this.playSoundEffect('special.mp3'); } 
+                    this.playSoundEffect('special.mp3');
+                }
 
                 // Play audio when brought to field face-up
-               
+
                 if (faceUp) {
                     this.playCardAudio(card);
                 }
@@ -2996,14 +2997,14 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         });
 
         // If destination is deck, reshuffle
-       /* if (destinationLocation === 'deck1') {
-            this.deterministicShuffleDeck(0);
-            console.log('did the shuffling for deck 1');
-        } else if (destinationLocation === 'deck2') {
-            this.deterministicShuffleDeck(1);
-            console.log('did the shuffling for deck 2');
-        }
- */
+        /* if (destinationLocation === 'deck1') {
+             this.deterministicShuffleDeck(0);
+             console.log('did the shuffling for deck 1');
+         } else if (destinationLocation === 'deck2') {
+             this.deterministicShuffleDeck(1);
+             console.log('did the shuffling for deck 2');
+         }
+  */
 
         this.updateDisplay();
         this.displayAllCards();
@@ -3024,7 +3025,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
             this.playSoundEffect('drawcard.mp3');
             return drawnCard;
 
-        } 
+        }
     }
 
     // Return latest graveyard card to hand
@@ -3040,7 +3041,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
             this.displayAllCards();
             this.updateDisplay();
             return card;
-        } 
+        }
     }
 
     closeModificationPopup() {
@@ -3197,10 +3198,10 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         const mover = this.randomdCount % this.randomvalues.length;
         const arrayValue = this.randomvalues[mover]
 
-        const result = Math.abs((arrayValue+deck1Length + deck2Length - hand1Length - hand2Length) % 6) + 1;
+        const result = Math.abs((arrayValue + deck1Length + deck2Length - hand1Length - hand2Length) % 6) + 1;
         this.randomdCount++;
         this.diceValue = result;
-        
+
         console.log(`[DICE] Calculation: (${deck1Length} + ${deck2Length} - ${hand1Length} - ${hand2Length}) % 6 + 1 = ${result}`);
 
         // Show result in simple overlay
@@ -3342,7 +3343,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
                 
                 <button id="ok-restart-btn" class="restartBtn"
                     
-                ">OK</button>
+                ">Restart</button>
                 
                 <button id="cancel-restart-btn" class="restartBtn"
                     
@@ -3598,7 +3599,7 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         const deck = this.deck[deckIndex];
 
         // YOUR FORMULA: deck1 - deck2 length + hand1 - hand2 length + grave1 - grave2 length
-        const seed = Math.abs(
+        let seed = Math.abs(
             this.deck[0].length - this.deck[1].length +
             this.hand[0].length - this.hand[1].length +
             this.grave[0].length - this.grave[1].length
@@ -3631,88 +3632,88 @@ if (window.CARD_IMAGE_MAP && window.CARD_IMAGE_MAP[`${card.cn}.jpg`]) {
         }
 
 
-// ✅ Player 1 Deck Section - Single click for deck→field, Triple click for grave→field
-const player1DeckSection = document.getElementById('player1DeckCount');
-if (player1DeckSection) {
-    let clickCount = 0;
-    let clickTimer = null;
+        // ✅ Player 1 Deck Section - Single click for deck→field, Triple click for grave→field
+        const player1DeckSection = document.getElementById('player1DeckCount');
+        if (player1DeckSection) {
+            let clickCount = 0;
+            let clickTimer = null;
 
-    player1DeckSection.addEventListener('click', (e) => {
-        
-        e.preventDefault();
-        clickCount++;
-        console.log(`[DECK CLICK] Player 1 deck click count: ${clickCount}`);
+            player1DeckSection.addEventListener('click', (e) => {
 
-        // Clear existing timer
-        if (clickTimer) {
-            clearTimeout(clickTimer);
+                e.preventDefault();
+                clickCount++;
+                console.log(`[DECK CLICK] Player 1 deck click count: ${clickCount}`);
+
+                // Clear existing timer
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
+
+                // Set timer to detect triple click
+                clickTimer = setTimeout(() => {
+                    if (clickCount === 1) {
+                        this.playSoundEffect('deck1.mp3');
+                        console.log('[DECK CLICK] Opening 3 popups');
+                        this.quickTransferToField('deck1', 'monsterfield1', 'deck1');
+                        this.quickTransferToField('extradeck1', 'monsterfield1', 'extra1');
+                        this.quickTransferToField('graveyard1', 'monsterfield1', 'grave1');
+
+
+                    } else if (clickCount === 3) {
+                        // Double click - still draw card (existing behavior)
+                        //  console.log('[DECK CLICK] Player 2 graveyard → monster field');
+                        //  this.quickTransferToField('graveyard2', 'monsterfield2');
+                    } else if (clickCount >= 3) {
+                        // Triple click - graveyard to field
+
+                    }
+
+                    clickCount = 0; // Reset
+                }, 800); // 400ms window for triple click
+            });
         }
 
-        // Set timer to detect triple click
-        clickTimer = setTimeout(() => {
-        if (clickCount === 1) {
-            this.playSoundEffect('deck1.mp3');
-    console.log('[DECK CLICK] Opening 3 popups');
-    this.quickTransferToField('deck1', 'monsterfield1', 'deck1');
-    this.quickTransferToField('extradeck1', 'monsterfield1', 'extra1');
-    this.quickTransferToField('graveyard1', 'monsterfield1', 'grave1');
+        // ✅ Player 2 Deck Section - Single click for deck→field, Triple click for grave→field
+        const player2DeckSection = document.getElementById('player2DeckCount');
+        if (player2DeckSection) {
+            let clickCount = 0;
+            let clickTimer = null;
 
 
-} else if (clickCount === 3) {
-                // Double click - still draw card (existing behavior)
-             //  console.log('[DECK CLICK] Player 2 graveyard → monster field');
-              //  this.quickTransferToField('graveyard2', 'monsterfield2');
-            } else if (clickCount >= 3) {
-                // Triple click - graveyard to field
-                
-            }
+            player2DeckSection.addEventListener('click', (e) => {
 
-            clickCount = 0; // Reset
-        }, 800); // 400ms window for triple click
-    });
-}
+                e.preventDefault();
+                clickCount++;
+                console.log(`[DECK CLICK] Player 2 deck click count: ${clickCount}`);
 
-// ✅ Player 2 Deck Section - Single click for deck→field, Triple click for grave→field
-const player2DeckSection = document.getElementById('player2DeckCount');
-if (player2DeckSection) {
-    let clickCount = 0;
-    let clickTimer = null;
-    
+                // Clear existing timer
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
 
-    player2DeckSection.addEventListener('click', (e) => {
-      
-        e.preventDefault();
-        clickCount++;
-        console.log(`[DECK CLICK] Player 2 deck click count: ${clickCount}`);
+                // Set timer to detect triple click
+                clickTimer = setTimeout(() => {
+                    if (clickCount === 1) {
+                        this.playSoundEffect('deck2.mp3');
+                        console.log('[DECK CLICK] Opening 3 popups');
 
-        // Clear existing timer
-        if (clickTimer) {
-            clearTimeout(clickTimer);
+                        this.quickTransferToField('deck2', 'monsterfield2', 'deck2');
+                        this.quickTransferToField('extradeck2', 'monsterfield2', 'extra2');
+                        this.quickTransferToField('graveyard2', 'monsterfield2', 'grave2');
+
+                    } else if (clickCount === 3) {
+                        // Double click - still draw card (existing behavior)
+                        //  console.log('[DECK CLICK] Player 2 graveyard → monster field');
+                        //  this.quickTransferToField('graveyard2', 'monsterfield2');
+                    } else if (clickCount >= 3) {
+                        // Triple click - graveyard to field
+
+                    }
+
+                    clickCount = 0; // Reset
+                }, 800); // 400ms window for triple click
+            });
         }
-
-        // Set timer to detect triple click
-        clickTimer = setTimeout(() => {
-            if (clickCount === 1) {
-                 this.playSoundEffect('deck2.mp3');
-             console.log('[DECK CLICK] Opening 3 popups');
-    
-    this.quickTransferToField('deck2', 'monsterfield2', 'deck2');
-    this.quickTransferToField('extradeck2', 'monsterfield2', 'extra2');
-    this.quickTransferToField('graveyard2', 'monsterfield2', 'grave2');
-
-            } else if (clickCount === 3) {
-                // Double click - still draw card (existing behavior)
-             //  console.log('[DECK CLICK] Player 2 graveyard → monster field');
-              //  this.quickTransferToField('graveyard2', 'monsterfield2');
-            } else if (clickCount >= 3) {
-                // Triple click - graveyard to field
-                
-            }
-
-            clickCount = 0; // Reset
-        }, 800); // 400ms window for triple click
-    });
-}
 
 
 
@@ -3721,10 +3722,10 @@ if (player2DeckSection) {
 
         if (player1LP) {
             player1LP.addEventListener('click', () => {
-             if (this.activeValue) {
-                this.applyValueToLP(0); // Player 1 = index 0
-                return; // Exit early, don't do battle phase stuff
-            }
+                if (this.activeValue) {
+                    this.applyValueToLP(0); // Player 1 = index 0
+                    return; // Exit early, don't do battle phase stuff
+                }
 
                 if (this.bp && this.selectedAttacker) {
                     this.directAttack(0); // attack Player 1 LP
@@ -3736,10 +3737,10 @@ if (player2DeckSection) {
 
         if (player2LP) {
             player2LP.addEventListener('click', () => {
-               if (this.activeValue) {
-                this.applyValueToLP(1); // Player 2 = index 1
-                return; // Exit early 
-               }
+                if (this.activeValue) {
+                    this.applyValueToLP(1); // Player 2 = index 1
+                    return; // Exit early 
+                }
 
                 if (this.bp && this.selectedAttacker) {
                     this.directAttack(1); // attack Player 2 LP
@@ -3749,7 +3750,7 @@ if (player2DeckSection) {
             });
         }
 
-      
+
 
         // ✅ Player 2 Deck Section - Double-click to draw
         const player2DeckSectionv2 = document.getElementById('player2DeckCount');
@@ -3772,7 +3773,7 @@ if (player2DeckSection) {
             });
 
 
-        } 
+        }
 
 
         const bringCardsButton = document.getElementById('bringcardsbutton');
@@ -3796,7 +3797,7 @@ if (player2DeckSection) {
             mpButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.setMainPhase();
-               
+
 
             });
         }
@@ -4217,7 +4218,7 @@ console.log('Loading multiplayer client with mirroring...');
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.id = 'reconnect-overlay';
-           overlay.classList.add('reconectOverlay');
+            overlay.classList.add('reconectOverlay');
             overlay.innerHTML = `
                 <div style="text-align: center;">
                     <div style="font-size: 64px; margin-bottom: 20px; animation: spin 2s linear infinite;">⏳</div>
@@ -4407,10 +4408,10 @@ console.log('Loading multiplayer client with mirroring...');
             defModDir: game.defModDir,
             activeTransferPlayer: game.activeTransferPlayer,
             phaseButtonsPlayer2: document.getElementById('mp-button')?.classList.contains('player2') || false,
-            activeValue: game.activeValue, 
+            activeValue: game.activeValue,
             activeValueCard: game.activeValueCard,
             randomdCount: game.randomdCount,
-            diceValue : game.diceValue ,
+            diceValue: game.diceValue,
         };
 
         console.log('[SYNC] Sending my game state to reconnecting player');
@@ -4459,9 +4460,9 @@ console.log('Loading multiplayer client with mirroring...');
             game.defModValue = state.defModValue;
             game.defModDir = state.defModDir;
             game.activeTransferPlayer = state.activeTransferPlayer;
-            game.activeValue = state.activeValue || null; 
-            game.activeValueCard = state.activeValueCard || null; 
-            game.randomdCount= state.randomdCount;
+            game.activeValue = state.activeValue || null;
+            game.activeValueCard = state.activeValueCard || null;
+            game.randomdCount = state.randomdCount;
             game.diceValue = state.diceValue;
 
             // ✅ Refresh display
@@ -4617,7 +4618,7 @@ console.log('Loading multiplayer client with mirroring...');
             'showLPModificationPopup',
             'showBringCardsPopup',
             'confirmCardTransfer',
-           // 'showFieldPlacementChoice',
+            // 'showFieldPlacementChoice',
             'showCardModificationPopup',
             'setTransferDirection',      // ← Transfer buttons
             'toggleAtkModifier',         // ← ATK button
@@ -4800,7 +4801,7 @@ console.log('Loading multiplayer client with mirroring...');
 
         // Add animation
         const style = document.createElement('style');
-      
+
         if (!document.getElementById('reconnect-notification-style')) {
             style.id = 'reconnect-notification-style';
             document.head.appendChild(style);
