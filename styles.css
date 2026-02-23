@@ -6,7 +6,7 @@
 
 body {
   font-family: Arial, sans-serif;
-  background: linear-gradient(180deg, #49484a, #121212 );
+  background: linear-gradient(180deg, #49484a, #121212);
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -125,7 +125,7 @@ body {
   display: flex;
   flex-direction: column;
   margin-right: 2%;
-  
+
 }
 
 .game-field-row {
@@ -159,15 +159,15 @@ body {
 
 
 .player-hand-bottom {
-  
+
   margin-bottom: 0;
 }
 
 /* UPDATED: Yu-Gi-Oh Card Styling with Image Support */
 .yugioh-card {
   width: 25vw;
-  
-  
+
+
   height: 100%;
   border: 2px solid;
   border-radius: 6px;
@@ -291,23 +291,27 @@ body {
 
 .yugioh-card.monster .fusion {
   background: linear-gradient(45deg, #705773, #f9a9fd);
-  white-space: nowrap;      /* Prevents text from wrapping to the next line */
-    overflow: hidden;         /* Hides overflowing text */
-    text-overflow: ellipsis;
-    font-size: 2vw;
+  white-space: nowrap;
+  /* Prevents text from wrapping to the next line */
+  overflow: hidden;
+  /* Hides overflowing text */
+  text-overflow: ellipsis;
+  font-size: 2vw;
 
 }
 
 
 .yugioh-card.monster .ritual {
   background: linear-gradient(45deg, #0c85ff, #8fcdeb);
-   white-space: nowrap;      /* Prevents text from wrapping to the next line */
-    overflow: hidden;         /* Hides overflowing text */
-    text-overflow: ellipsis;
-    font-size: 2vw;
-    text-align: left;
-    
-    
+  white-space: nowrap;
+  /* Prevents text from wrapping to the next line */
+  overflow: hidden;
+  /* Hides overflowing text */
+  text-overflow: ellipsis;
+  font-size: 2vw;
+  text-align: left;
+
+
 }
 
 
@@ -389,7 +393,7 @@ body {
   font-weight: bold;
   overflow: hidden;
   color: black;
- 
+
 }
 
 
@@ -412,7 +416,7 @@ body {
 .player2-spell-trap {
   height: 16%;
   width: 100vw;
-  
+
   justify-content: center;
 
 }
@@ -420,7 +424,7 @@ body {
 .player2-monster {
   height: 17%;
   width: 100vw;
-  
+
   border: 0px solid #000000;
   margin-bottom: 0px;
   display: flex;
@@ -434,7 +438,7 @@ body {
 .player1-monster {
   height: 17%;
   width: 100vw;
- 
+
   border: 0px solid #000000;
   margin-bottom: 0px;
   display: flex;
@@ -448,7 +452,7 @@ body {
 .player1-spell-trap {
   height: 16%;
   width: 100vw;
-  
+
   justify-content: center;
 
 }
@@ -1029,18 +1033,18 @@ body {
 
 /* Damage Animation */
 .damage-popup {
- position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.9);
-            color: white;
-            font-size: 48px;
-            font-weight: bold;
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 3000;
-            animation: damageAnimation 1s ease-out forwards;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 0, 0, 0.9);
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 3000;
+  animation: damageAnimation 1s ease-out forwards;
 }
 
 @keyframes damageAnimation {
@@ -1367,7 +1371,7 @@ body {
 /* Defense position indicator - "D" badge */
 .defense-indicator {
   position: absolute;
-  left: 25% ;
+  left: 25%;
   background-color: rgba(52, 152, 219, 0.9);
   color: white;
   font-weight: bold;
@@ -1528,7 +1532,7 @@ body {
     margin-bottom: 4px;
   }
 
-  
+
 }
 
 
@@ -1652,7 +1656,7 @@ body {
 .check-section.active {
   background-color: #803300;
   border: 2px solid #229954 !important;
-  
+
   transform: scale(1.05) !important;
 
 }
@@ -1691,136 +1695,161 @@ body {
 
 /* Card Value Div */
 .card-value-div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 20%;
-    background: transparent;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.2s;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: transparent;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
 }
 
 .card-value-div:hover {
-    background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .card-value-div.value-active {
-    background: rgba(52, 152, 219, 0.4);
-    border: 2px solid #3498db;
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
+  background: rgba(52, 152, 219, 0.4);
+  border: 2px solid #3498db;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
 }
 
 .reconectNotif {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #27ae60;
-        color: white;
-        padding: 15px 30px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: bold;
-        z-index: 99999;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        animation: slideDown 0.3s ease-out;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #27ae60;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 99999;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.3s ease-out;
 
 }
 
 @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
+  from {
+    transform: translateX(-50%) translateY(-100px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
 
 .successMsg {
 
   position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #27ae60;
-    color: white;
-    padding: 15px 30px;
-    border-radius: 8px;
-    z-index: 99999;
-    font-size: 16px;
-    font-family: Arial, sans-serif;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #27ae60;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  z-index: 99999;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .reconectOverlay {
- position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.95);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                z-index: 99999;
-                color: white;
-                font-family: Arial, sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  color: white;
+  font-family: Arial, sans-serif;
 
 
 }
 
 .diceResult {
- position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 200px;
-        font-weight: bold;
-        color: #ffffff;
-        z-index: 3000;
-        font-family: Arial, sans-serif;
-        text-shadow: 0 0 10px rgb(255, 255, 255);
-        text-align: center;
-        pointer-events: none;
-        background-color: #ffd001c0;
-        width: 30%;
-        border-radius: 10%;
-        
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 200px;
+  font-weight: bold;
+  color: #ffffff;
+  z-index: 3000;
+  font-family: Arial, sans-serif;
+  text-shadow: 0 0 10px rgb(255, 255, 255);
+  text-align: center;
+  pointer-events: none;
+  background-color: #ffd001c0;
+  width: 30%;
+  border-radius: 10%;
+
 
 }
 
 .restartBtn {
   padding: 12px 25px;
-                    background: #95a5a6;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: bold;
-                    cursor: pointer;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
 
 
 }
 
 .popupText {
- position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
 
 }
 
 .card-imageStyle {
 
-        object-fit: fill;
-        border-radius: 2px;
-        height: 100%;
-        width: 100%;
+  object-fit: fill;
+  border-radius: 2px;
+  height: 100%;
+  width: 100%;
 
 }
 
+.reset-stats-btn {
+  position: absolute;
+  top: 10 px
+    /* wherever your atk/def display is */
+  ;
+  right: 4px;
+  background: rgba(255, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+}

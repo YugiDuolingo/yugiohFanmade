@@ -494,6 +494,16 @@ class YuGiOhGame {
         return 'monster';
     }
 
+    resetCardStats(cardId) {
+        const card = this.monsterField[0].find(c => c.id === cardId) ||
+            this.monsterField[1].find(c => c.id === cardId);
+        if (!card) return;
+        if (card.originalAk !== undefined) card.ak = card.originalAk;
+        if (card.originalDf !== undefined) card.df = card.originalDf;
+        console.log(`${card.cn} stats reset to ATK:${card.ak} DEF:${card.df}`);
+        this.displayAllCards();
+    }
+
 
     // Quick transfer from deck/graveyard to field
     quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
@@ -619,7 +629,7 @@ class YuGiOhGame {
         utterance.rate = 1.0;     // Speed (0.1 to 10)
         utterance.pitch = 1.0;    // Pitch (0 to 2)
         utterance.volume = 0.5;   // Volume (0 to 1)
-        utterance.lang = navigator.language; // Use browser/system language
+        utterance.lang = localStorage.getItem('tts_lang') || navigator.language;
 
         // Optional: Select a specific voice
         /*   const voices = window.speechSynthesis.getVoices();
@@ -1507,6 +1517,22 @@ class YuGiOhGame {
             nameSection.appendChild(valueDiv);
         }
 
+        // Reset stats button (only for monsters on field with modified stats)
+        if (location === 'field' && this.getCardType(card) === 'monster' &&
+            (card.originalAk !== undefined || card.originalDf !== undefined)) {
+
+            const resetDiv = document.createElement('div');
+            resetDiv.className = 'reset-stats-btn';
+            resetDiv.textContent = '↺';
+            resetDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.resetCardStats(card.id);
+            });
+            cardDiv.appendChild(resetDiv);
+        }
+
+
+
         const trSection = document.createElement('div');
         trSection.className = 'tr-class';
         if (card.faceUp === false && (location === 'field' || location === 'spelltrapfield')) {
@@ -1653,6 +1679,8 @@ class YuGiOhGame {
         } else {
             cardDiv.title = "";
         }
+
+
 
 
         // FIXED: Enhanced click handlers with proper double-click handling
@@ -1821,10 +1849,10 @@ class YuGiOhGame {
     }
 
     handleFieldCardClick(card, playerIndex) {
-        console.log(`🎯 [FIELD CLICK] Card: ${card.cn}, Player: ${playerIndex}`);
-        console.log(`🎯 [FIELD CLICK] Active value exists? ${this.activeValue !== null}`);
-        console.log(`🎯 [FIELD CLICK] Active value:`, this.activeValue);
-        console.log(`🎯 [FIELD CLICK] Suppressed? ${this.__suppressEmit}`); // ✅ ADD THIS
+        //  console.log(`🎯 [FIELD CLICK] Card: ${card.cn}, Player: ${playerIndex}`);
+        //   console.log(`🎯 [FIELD CLICK] Active value exists? ${this.activeValue !== null}`);
+        //   console.log(`🎯 [FIELD CLICK] Active value:`, this.activeValue);
+        //   console.log(`🎯 [FIELD CLICK] Suppressed? ${this.__suppressEmit}`); // ✅ ADD THIS
 
         const currentPlayerIndex = this.turn === 1 ? 0 : 1;
 
@@ -1935,14 +1963,31 @@ class YuGiOhGame {
                     const cardIndex = sourceField.findIndex(c => c.id === card.id);
                     const transferredCard = sourceField.splice(cardIndex, 1)[0];
 
-                    // Restore original stats for monsters
-                    if (this.getCardType(transferredCard) === 'monster') {
-                        if (transferredCard.originalAk !== undefined) transferredCard.ak = transferredCard.originalAk;
-                        if (transferredCard.originalDf !== undefined) transferredCard.df = transferredCard.originalDf;
-                    }
+
 
                     // Add to target hand (preserve face-up/position)
-                    this.hand[targetPlayerIndex].push(transferredCard);
+                    // If coming from opponent's field, send directly to target's field
+                    if (sourcePlayerIndex !== targetPlayerIndex) {
+                        if (this.getCardType(transferredCard) === 'monster') {
+                            transferredCard.position = transferredCard.position || 'attack';
+                            transferredCard.faceUp = true;
+                            this.monsterField[targetPlayerIndex].push(transferredCard);
+                            console.log(`${transferredCard.cn} transferred from P${sourcePlayerIndex + 1} field → P${targetPlayerIndex + 1} monster field`);
+                        } else {
+                            transferredCard.faceUp = true;
+                            this.spellTrapField[targetPlayerIndex].push(transferredCard);
+                            console.log(`${transferredCard.cn} transferred from P${sourcePlayerIndex + 1} field → P${targetPlayerIndex + 1} spell/trap field`);
+                        }
+                    } else {
+                        // Same player's own field → goes to hand as usual
+                        // Restore original stats for monsters
+                        if (this.getCardType(transferredCard) === 'monster') {
+                            if (transferredCard.originalAk !== undefined) transferredCard.ak = transferredCard.originalAk;
+                            if (transferredCard.originalDf !== undefined) transferredCard.df = transferredCard.originalDf;
+                        }
+                        this.hand[targetPlayerIndex].push(transferredCard);
+                        console.log(`${transferredCard.cn} returned from own field to P${targetPlayerIndex + 1} hand`);
+                    }
 
                     console.log(`${card.cn} transferred from field (P${sourcePlayerIndex + 1}) to hand of P${this.activeTransferPlayer}`);
                     this.playCardAudio(transferredCard); // Audio feedback
@@ -3335,6 +3380,20 @@ class YuGiOhGame {
                 box-sizing: border-box;
                 margin-bottom: 15px;
             "></textarea>
+            <div style="margin-top: 12px;">
+    <label style="font-size: 13px; display: block; margin-bottom: 5px;">TTS Language Code</label>
+    <input id="tts-lang-input" type="text" placeholder="e.g. en-US, fr-FR, ar-SA" value="${localStorage.getItem('tts_lang') || navigator.language}" style="
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #555;
+        background: #2a2a2a;
+        color: white;
+        font-size: 13px;
+        box-sizing: border-box;
+    "/>
+</div>
+            
             
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button id="paste-btn" class="restartBtn"
@@ -3361,6 +3420,11 @@ class YuGiOhGame {
         const indexedDBBtn = popup.querySelector('#toggle-indexeddb-btn');
         const ttsBtn = popup.querySelector('#toggle-tts-btn');
         const getStats = popup.querySelector('#get-gameStats');
+        const ttsLangInput = popup.querySelector('#tts-lang-input');
+
+        ttsLangInput.addEventListener('input', () => {
+            localStorage.setItem('tts_lang', ttsLangInput.value.trim());
+        });
 
 
 
@@ -4643,6 +4707,7 @@ console.log('Loading multiplayer client with mirroring...');
             'activateValueSelection',
             'deactivateValueSelection',
             'applyValueToLP',
+            'resetCardStats',
 
 
 
