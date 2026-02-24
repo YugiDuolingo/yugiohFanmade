@@ -504,6 +504,30 @@ class YuGiOhGame {
         this.displayAllCards();
     }
 
+    incrementCardCount(cardId) {
+        const card = this.monsterField[0].find(c => c.id === cardId) ||
+            this.monsterField[1].find(c => c.id === cardId) ||
+            this.spellTrapField[0].find(c => c.id === cardId) ||
+            this.spellTrapField[1].find(c => c.id === cardId);
+        if (!card) return;
+        if (card.count === undefined) card.count = 0;
+        card.count += 1;
+        console.log(`${card.cn} count: ${card.count}`);
+        this.displayAllCards();
+    }
+
+    resetCardCount(cardId) {
+        const card = this.monsterField[0].find(c => c.id === cardId) ||
+            this.monsterField[1].find(c => c.id === cardId) ||
+            this.spellTrapField[0].find(c => c.id === cardId) ||
+            this.spellTrapField[1].find(c => c.id === cardId);
+        if (!card) return;
+        card.count = 0;
+        console.log(`${card.cn} count reset`);
+        this.displayAllCards();
+    }
+
+
 
     // Quick transfer from deck/graveyard to field
     quickTransferToField(sourceLocation, destinationLocation, popupId = 'default') {
@@ -756,7 +780,10 @@ class YuGiOhGame {
             const removedCard = this.spellTrapField[fieldIndex].splice(cardIndex, 1)[0];
 
             // Send to owner's graveyard
-            this.grave[ownerIndex].push(removedCard);
+            if (removedCard.top !== undefined) {
+                this.deck[ownerIndex].push(removedCard);
+            }
+            else this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
             if (playAudio == 1) { this.playCardAudio(removedCard); }
@@ -797,7 +824,10 @@ class YuGiOhGame {
             }
 
             // Send to OWNER's graveyard (based on ID), not current field owner
-            this.grave[ownerIndex].push(removedCard);
+            if (removedCard.top !== undefined) {
+                this.deck[ownerIndex].push(removedCard);
+            }
+            else this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
             if (playAudio == 1) { this.playCardAudio(removedCard); }
@@ -1529,6 +1559,24 @@ class YuGiOhGame {
                 this.resetCardStats(card.id);
             });
             cardDiv.appendChild(resetDiv);
+        }
+
+        // Count div (only for cards with count property)
+        if (card.count !== undefined) {
+
+
+            const countDiv = document.createElement('div');
+            countDiv.className = 'count-btn';
+            countDiv.textContent = card.count;
+            countDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.incrementCardCount(card.id);
+            });
+            countDiv.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                this.resetCardCount(card.id);
+            });
+            cardDiv.appendChild(countDiv);
         }
 
 
@@ -4708,6 +4756,8 @@ console.log('Loading multiplayer client with mirroring...');
             'deactivateValueSelection',
             'applyValueToLP',
             'resetCardStats',
+            'incrementCardCount',
+            'resetCardCount',
 
 
 
