@@ -149,6 +149,7 @@ class YuGiOhGame {
         };
 
         this.activeValue = parsed;
+        this.playSoundEffect('value.mp3');
 
         // Update display to show active state
         this.displayAllCards();
@@ -159,6 +160,7 @@ class YuGiOhGame {
         console.log('[VALUE] Deactivated value selection');
         this.activeValueCard = null;
         this.activeValue = null;
+        this.playSoundEffect('deactivate.mp3');
         this.displayAllCards();
     }
 
@@ -256,6 +258,8 @@ class YuGiOhGame {
             mainSection.classList.remove('player2-view');
             console.log('✅ Applied Player 1 perspective - normal field');
         }
+
+
     }
 
 
@@ -470,6 +474,7 @@ class YuGiOhGame {
 
         this.updateDisplay();
         this.displayAllCards();
+        this.playSoundEffect('start.mp3');
         this.setMainPhase();
 
         // Start silent auto-save every 30 seconds
@@ -501,6 +506,7 @@ class YuGiOhGame {
         if (card.originalAk !== undefined) card.ak = card.originalAk;
         if (card.originalDf !== undefined) card.df = card.originalDf;
         console.log(`${card.cn} stats reset to ATK:${card.ak} DEF:${card.df}`);
+        this.playSoundEffect('reset.mp3');
         this.displayAllCards();
     }
 
@@ -513,6 +519,7 @@ class YuGiOhGame {
         if (card.count === undefined) card.count = 0;
         card.count += 1;
         console.log(`${card.cn} count: ${card.count}`);
+        this.playSoundEffect('count.mp3');
         this.displayAllCards();
     }
 
@@ -1246,6 +1253,8 @@ class YuGiOhGame {
         setTimeout(() => {
             document.body.removeChild(popup);
         }, 1000);
+        if (damage > 0) { this.playSoundEffect('damage.mp3'); }
+        else this.playSoundEffect('gain.mp3');
     }
 
     endBattle() {
@@ -1785,6 +1794,7 @@ class YuGiOhGame {
             if ((this.activeAtkMod || this.activeDefMod) && location === 'field' && this.getCardType(card) === 'monster') {
                 // ✅ Call the mirrorable method instead
                 this.modifyCardStatsByDoubleClick(card.id, playerIndex);
+                this.playSoundEffect('modarkdf.mp3');
                 return; // Don't send to graveyard
             }
             else if (this.activeValue !== null) { return; }
@@ -1859,6 +1869,7 @@ class YuGiOhGame {
             // FIXED: Double-click monster = face-down defense
             if (this.playMonster(card, playerIndex, 'defense', false)) {
                 console.log(`${card.cn} set face-down in Defense Position!`);
+
             }
         } else {
             // Double-click spell/trap = face-down
@@ -1866,6 +1877,7 @@ class YuGiOhGame {
                 console.log(`${card.cn} set face-down!`);
             }
         }
+        this.playSoundEffect('facedown.mp3');
     }
 
 
@@ -2086,6 +2098,8 @@ class YuGiOhGame {
                     this.playCardAudio(targetCard);  // Add here: Audio on every ATK mod press     
                     console.log(`${targetCard.cn} DEF modified by ${this.defModDir > 0 ? '+' : ''}${this.defModValue} to ${targetCard.df}`);
                 }
+
+                this.playSoundEffect('modarkdf.mp3');
 
                 this.updateDisplay();
                 this.displayAllCards(); // Refreshes stats visually
@@ -3041,7 +3055,7 @@ class YuGiOhGame {
     // Execute card transfer with specified face-up/face-down state
     executeCardTransfer(selectedIndices, sourceLocation, destinationLocation, faceUp, position) {
         // Close all popups
-        this.deactivateValueSelection();
+        //this.deactivateValueSelection();
         document.querySelectorAll('.card-selection-popup, .bring-cards-popup, .field-choice-popup').forEach(popup => popup.remove());
 
         const sourceCards = this.getCardsFromLocation(sourceLocation);
@@ -3105,7 +3119,7 @@ class YuGiOhGame {
         console.log(`Transferred ${selectedIndices.length} cards from ${sourceLocation} to ${destinationLocation}`);
     }
 
-    // Add these methods to YuGiOhGame class
+
 
     // Draw card for specific player
     drawCardForPlayer(playerIndex) {
@@ -3265,6 +3279,7 @@ class YuGiOhGame {
 
         if (p1Btn) p1Btn.classList.toggle('active', player === 1);
         if (p2Btn) p2Btn.classList.toggle('active', player === 2);
+
 
         console.log('Transfer direction set to:', player || 'none');
     }
