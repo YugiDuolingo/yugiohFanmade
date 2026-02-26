@@ -1,5 +1,4 @@
 
-
 class YuGiOhGame {
 
     constructor() {
@@ -108,8 +107,27 @@ class YuGiOhGame {
             };
         }
 
+        if (valueStr === 'sendED') {
+            return {
+                type: 'sendED',
+                isMultiplier: false,
+                value: 0
+            };
+        }
 
-        const match = valueStr.match(/^([adb])(\*?)(-?\d+\.?\d*)$/);
+        const rawMatch = valueStr.match(/^R(\d+)$/);
+        if (rawMatch) {
+            return {
+                type: 'R',
+                isMultiplier: false,
+                value: parseFloat(rawMatch[1])
+            };
+        }
+
+
+
+
+        const match = valueStr.match(/^([adbR])(\*?)(-?\d+\.?\d*)$/);
         if (!match) return null;
 
         return {
@@ -174,6 +192,7 @@ class YuGiOhGame {
         // Assign IDs to Player 1 deck
         for (let i = 0; i < this.deck[0].length; i++) {
             this.deck[0][i].id = `p0.${i + 1}`;
+
         }
         console.log(`Player 1: ${this.deck[0].length} cards assigned IDs (1p1 to ${this.deck[0].length}p1)`);
 
@@ -790,6 +809,7 @@ class YuGiOhGame {
             if (removedCard.top !== undefined) {
                 this.deck[ownerIndex].push(removedCard);
             }
+            
             else this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
@@ -833,6 +853,11 @@ class YuGiOhGame {
             // Send to OWNER's graveyard (based on ID), not current field owner
             if (removedCard.top !== undefined) {
                 this.deck[ownerIndex].push(removedCard);
+            }
+            else if (this.activeValue && this.activeValue.type === 'sendED') {
+                this.extraDeck[ownerIndex].push(removedCard);
+                this.playSoundEffect('sendextradeck.mp3');
+                
             }
             else this.grave[ownerIndex].push(removedCard);
 
@@ -1093,7 +1118,7 @@ class YuGiOhGame {
         setTimeout(() => {
             this.endBattle();
             //this.checkGameOver();
-        }, 2000);
+        }, 1000);
     }
 
     addDestroyedIndicatorByCard(card, player) {
@@ -1124,8 +1149,8 @@ class YuGiOhGame {
                     indicator.classList.add('destroyed-indicator');
                     indicator.textContent = '💀';
                     cardElement.appendChild(indicator);
-                    cardElement.style.opacity = '0.6';
-                    cardElement.style.filter = 'grayscale(50%)';
+                    //cardElement.style.opacity = '0.6';
+                    //cardElement.style.filter = 'grayscale(50%)';
 
                 }
             });
@@ -1154,7 +1179,7 @@ class YuGiOhGame {
         setTimeout(() => {
             this.endBattle();
             //this.checkGameOver();
-        }, 2000);
+        }, 1000);
     }
 
     // Apply value effect to LP
@@ -1179,8 +1204,11 @@ class YuGiOhGame {
             //  this.showDiceResult(diceResult);
         }
 
-        // Calculate LP change based on value type
-        if (val.isMultiplier) {
+
+
+        if (val.type === 'R') {
+            lpChange = -actualValue;
+        } else if (val.isMultiplier) {
             const currentLP = this.lp[targetPlayerIndex];
             newLP = Math.max(0, Math.round(currentLP * actualValue));
             lpChange = newLP - currentLP;
@@ -1526,8 +1554,15 @@ class YuGiOhGame {
         nameSection.appendChild(cnClass);
         //nameSection.appendChild(atrClass);
 
-        // ✅ ADD VALUE DIV if card has value property
-        if (card.value && card.faceUp !== false) {
+        /* if (card.value === undefined) {
+             card.value = this.getCardType(card) === 'monster' ? 'a500' : 'a-500';
+         } */
+        if (this.getCardType(card) === 'monster' && !card.value) {
+            card.value = `R${card.ak}`;
+        } else if (this.getCardType(card) === 'monster' && card.value && card.value.startsWith('R')) {
+            card.value = `R${card.ak}`; // always sync R values with current ATK
+        }
+        if (card.faceUp !== false) {
             const valueDiv = document.createElement('div');
             valueDiv.className = 'card-value-div';
 
@@ -1797,7 +1832,7 @@ class YuGiOhGame {
                 this.playSoundEffect('modarkdf.mp3');
                 return; // Don't send to graveyard
             }
-            else if (this.activeValue !== null) { return; }
+           // else if (this.activeValue !== null) { return; }
 
             // Normal double-click behavior (send to graveyard)
             // const audio = new Audio('sfx/graveyard.mp3');
@@ -1959,6 +1994,18 @@ class YuGiOhGame {
                     console.log(`${targetCard.cn} ATK/DEF swapped → ATK: ${targetCard.ak}, DEF: ${targetCard.df}`);
 
                 }
+                
+                
+                
+
+
+                // ✅ Apply ATK modification
+                if (val.type === 'R') {
+                    targetCard.ak = Math.max(0, targetCard.ak + actualValue);
+
+                    console.log(`💥 [VALUE PASS] ATK modified to ${targetCard.ak}`);
+                }
+
 
                 // ✅ Apply ATK modification
                 if (val.type === 'a' || val.type === 'b' || val.type === 'l') {
@@ -2030,7 +2077,7 @@ class YuGiOhGame {
                     if (sourcePlayerIndex !== targetPlayerIndex) {
                         if (this.getCardType(transferredCard) === 'monster') {
                             transferredCard.position = transferredCard.position || 'attack';
-                            transferredCard.faceUp = true;
+                            // transferredCard.faceUp = true;
                             this.monsterField[targetPlayerIndex].push(transferredCard);
                             console.log(`${transferredCard.cn} transferred from P${sourcePlayerIndex + 1} field → P${targetPlayerIndex + 1} monster field`);
                         } else {

@@ -1392,13 +1392,13 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255, 0, 0, 0.95);
+  /* background: rgba(255, 0, 0, 0.95); */
   color: white;
   font-weight: bold;
   font-size: 48px;
   padding: 10px 20px;
   border-radius: 10px;
-  border: 3px solid #ff0000;
+  /* border: 3px solid #ff0000; */
   z-index: 9;
   pointer-events: none;
   box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
@@ -1414,15 +1414,15 @@ body {
   }
 
   50% {
-    opacity: 0.6;
+    opacity: 0.9;
   }
 }
 
 /* Optional: dim the destroyed card */
-.yugioh-card.destroyed {
+/* .yugioh-card.destroyed {
   opacity: 0.6;
   filter: grayscale(50%);
-}
+}  */
 
 
 

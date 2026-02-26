@@ -266,6 +266,7 @@ const yugi =
     {
       "cn": "defusion",
       "atr": "spell",
+      "value": "sendED",
       "desc": "You can split 1 Fusion Monster to disable an attack this turn."
     },
     {
