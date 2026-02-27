@@ -18,7 +18,7 @@
     <div class="game-container">
         <!-- Main Play Area (Center) -->
         <div class="main-play-area">
-           
+
         </div>
 
         <!-- Right Control Bar -->
@@ -43,6 +43,8 @@
                 <button id="close-popups-btn" class="close-popups-btn" title="Close all popups">✖</button>
                 <button class="check-section">🔎</button>
                 <button id="peek-btn" class="mod-btn">👁️</button>
+                <button id="atk-pass-btn" class="mod-btn" onclick="window.yugiohGame.toggleAtkPassMode()"
+                    ondblclick="window.yugiohGame.toggleAtkPassSign()">ATK→</button>
                 <button id="atk-mod-btn" class="mod-btn" data-stat="atk">+100 ATK</button>
                 <button id="def-mod-btn" class="mod-btn" data-stat="def">+100 DEF</button>
 
@@ -89,7 +91,7 @@
             <!-- Player 1 hand cards will appear here -->
         </div>
     </div>
-   
+
 
     <!-- Scripts at the very end -->
     <script src="/socket.io/socket.io.js"></script>

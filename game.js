@@ -69,8 +69,80 @@ class YuGiOhGame {
         this.activeAtkMod = false;
         this.activeDefMod = false;
 
+        this.atkPassMode = false;
+        this.atkPassPositive = true;
+        this.atkPassSourceId = null;
+
 
         console.log('Game state initialized');
+    }
+
+    toggleAtkPassMode() {
+        this.atkPassMode = !this.atkPassMode;
+        this.atkPassSourceId = null;
+        this.updateAtkPassButton();
+        this.displayAllCards();
+    }
+
+    toggleAtkPassSign() {
+        this.atkPassPositive = !this.atkPassPositive;
+        this.updateAtkPassButton();
+    }
+
+    updateAtkPassButton() {
+        const btn = document.getElementById('atk-pass-btn');
+        if (!btn) return;
+        if (this.atkPassMode) {
+            btn.style.background = this.atkPassPositive ? '#27ae60' : '#e74c3c';
+            btn.textContent = this.atkPassPositive ? 'ATK+→' : 'ATK-→';
+        } else {
+            btn.style.background = '';
+            btn.textContent = 'ATK→';
+        }
+    }
+
+    selectAtkPassSource(cardId) {
+        this.atkPassSourceId = cardId;
+        console.log(`[ATK PASS] Source selected: ${cardId}`);
+        this.displayAllCards();
+    }
+
+    applyAtkPass(targetCardId) {
+        // Find source
+        const source = this.monsterField[0].find(c => c.id === this.atkPassSourceId) ||
+            this.monsterField[1].find(c => c.id === this.atkPassSourceId);
+        if (!source) return;
+
+        // Find target
+        const target = this.monsterField[0].find(c => c.id === targetCardId) ||
+            this.monsterField[1].find(c => c.id === targetCardId);
+        if (!target) return;
+
+        const value = this.atkPassPositive ? source.ak : -source.ak;
+
+        if (!target.originalAk) target.originalAk = target.ak;
+        target.ak = Math.max(0, target.ak + value);
+
+        console.log(`[ATK PASS] ${source.cn} (${source.ak}) → ${target.cn} ATK now ${target.ak}`);
+        this.playSoundEffect('equip.mp3');
+        this.atkPassSourceId = null;
+        this.updateDisplay();
+        this.displayAllCards();
+    }
+
+    applyAtkPassToLP(targetPlayerIndex) {
+        const source = this.monsterField[0].find(c => c.id === this.atkPassSourceId) ||
+            this.monsterField[1].find(c => c.id === this.atkPassSourceId);
+        if (!source) return;
+
+        const value = this.atkPassPositive ? source.ak : -source.ak;
+
+        this.modifyLP(targetPlayerIndex, value);
+        this.showDamagePopup(-value);
+        console.log(`[ATK PASS LP] ${source.cn} (${source.ak}) → P${targetPlayerIndex + 1} LP`);
+        this.playSoundEffect('directattack.mp3');
+        this.atkPassSourceId = null;
+        this.displayAllCards();
     }
 
     // Add this method to parse value strings
@@ -602,7 +674,7 @@ class YuGiOhGame {
         this.playSoundEffect(soundFile);
     }
 
-    // Add around line 295, near playCardAudio()
+
 
     playSoundEffect(filename) {
         try {
@@ -809,7 +881,7 @@ class YuGiOhGame {
             if (removedCard.top !== undefined) {
                 this.deck[ownerIndex].push(removedCard);
             }
-            
+
             else this.grave[ownerIndex].push(removedCard);
 
             console.log(`${removedCard.cn} sent to Player ${ownerIndex + 1}'s graveyard (owner by ID)`);
@@ -857,7 +929,7 @@ class YuGiOhGame {
             else if (this.activeValue && this.activeValue.type === 'sendED') {
                 this.extraDeck[ownerIndex].push(removedCard);
                 this.playSoundEffect('sendextradeck.mp3');
-                
+
             }
             else this.grave[ownerIndex].push(removedCard);
 
@@ -1528,6 +1600,10 @@ class YuGiOhGame {
             cardDiv.classList.add('selected-attacker');
         }
 
+        if (this.atkPassMode && this.atkPassSourceId === card.id) {
+            cardDiv.style.border = '3px solid yellow';
+        }
+
         if (this.selectedTarget &&
             this.selectedTarget.card.id === card.id &&
             this.selectedTarget.playerIndex === (player === 1 ? 0 : 1)) {
@@ -1562,7 +1638,7 @@ class YuGiOhGame {
         } else if (this.getCardType(card) === 'monster' && card.value && card.value.startsWith('R')) {
             card.value = `R${card.ak}`; // always sync R values with current ATK
         }
-        if (card.faceUp !== false) {
+        if (card.faceUp !== false && (location === 'field' || location === 'spelltrapfield')) {
             const valueDiv = document.createElement('div');
             valueDiv.className = 'card-value-div';
 
@@ -1573,6 +1649,7 @@ class YuGiOhGame {
 
             if (isActive) {
                 valueDiv.classList.add('value-active');
+                // this.playCardAudio(card);
             }
 
             // Click handler for value div
@@ -1582,6 +1659,7 @@ class YuGiOhGame {
                 if (this.activeValueCard && this.activeValueCard.cardId === card.id) {
                     // Clicking same card - deactivate
                     this.deactivateValueSelection();
+                    this.playCardAudio(card);
                 } else {
                     // Activate this card's value
                     this.activateValueSelection(card, player === 1 ? 0 : 1);
@@ -1592,7 +1670,7 @@ class YuGiOhGame {
         }
 
         // Reset stats button (only for monsters on field with modified stats)
-        if (location === 'field' && this.getCardType(card) === 'monster' &&
+        if (card.faceUp && location === 'field' && this.getCardType(card) === 'monster' &&
             (card.originalAk !== undefined || card.originalDf !== undefined)) {
 
             const resetDiv = document.createElement('div');
@@ -1601,6 +1679,7 @@ class YuGiOhGame {
             resetDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.resetCardStats(card.id);
+                this.playCardAudio(card);
             });
             cardDiv.appendChild(resetDiv);
         }
@@ -1615,10 +1694,12 @@ class YuGiOhGame {
             countDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.incrementCardCount(card.id);
+                this.playCardAudio(card);
             });
             countDiv.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
                 this.resetCardCount(card.id);
+                this.playCardAudio(card);
             });
             cardDiv.appendChild(countDiv);
         }
@@ -1832,7 +1913,7 @@ class YuGiOhGame {
                 this.playSoundEffect('modarkdf.mp3');
                 return; // Don't send to graveyard
             }
-           // else if (this.activeValue !== null) { return; }
+            // else if (this.activeValue !== null) { return; }
 
             // Normal double-click behavior (send to graveyard)
             // const audio = new Audio('sfx/graveyard.mp3');
@@ -1951,6 +2032,15 @@ class YuGiOhGame {
 
         const currentPlayerIndex = this.turn === 1 ? 0 : 1;
 
+        if (this.atkPassMode && this.getCardType(card) === 'monster') {
+            if (!this.atkPassSourceId) {
+                this.selectAtkPassSource(card.id);
+            } else {
+                this.applyAtkPass(card.id);
+            }
+            return;
+        }
+
         // In handleFieldCardClick(), in the value passing section:
         if (this.activeValue && this.getCardType(card) === 'monster') {
             console.log(`💥 [VALUE PASS] Attempting to pass value to ${card.cn}`);
@@ -1994,9 +2084,9 @@ class YuGiOhGame {
                     console.log(`${targetCard.cn} ATK/DEF swapped → ATK: ${targetCard.ak}, DEF: ${targetCard.df}`);
 
                 }
-                
-                
-                
+
+
+
 
 
                 // ✅ Apply ATK modification
@@ -2097,7 +2187,7 @@ class YuGiOhGame {
                     }
 
                     console.log(`${card.cn} transferred from field (P${sourcePlayerIndex + 1}) to hand of P${this.activeTransferPlayer}`);
-                    this.playCardAudio(transferredCard); // Audio feedback
+                    if (transferredCard.faceUp) { this.playCardAudio(transferredCard); }// Audio feedback 
                     this.activeTransferPlayer = null; // Clear after transfer
                     document.querySelectorAll('.transfer-btn').forEach(btn => btn.classList.remove('active')); // Deactivate buttons
 
@@ -2153,6 +2243,8 @@ class YuGiOhGame {
                 return; // Prevent other field actions
             }
         }
+
+
 
 
 
@@ -3894,35 +3986,45 @@ class YuGiOhGame {
         const player1LP = document.getElementById('player1LP');
         const player2LP = document.getElementById('player2LP');
 
-        if (player1LP) {
-            player1LP.addEventListener('click', () => {
-                if (this.activeValue) {
-                    this.applyValueToLP(0); // Player 1 = index 0
-                    return; // Exit early, don't do battle phase stuff
-                }
+        player1LP.addEventListener('click', () => {
+            if (this.atkPassMode && this.atkPassSourceId) {
+                this.applyAtkPassToLP(0);
+                return;
+            }
 
-                if (this.bp && this.selectedAttacker) {
-                    this.directAttack(0); // attack Player 1 LP
-                } else if (this.mp) {
-                    this.showLPModificationPopup(0);
-                }
-            });
-        }
+            if (this.activeValue) {
+                this.applyValueToLP(0);
+                return;
+            }
 
-        if (player2LP) {
-            player2LP.addEventListener('click', () => {
-                if (this.activeValue) {
-                    this.applyValueToLP(1); // Player 2 = index 1
-                    return; // Exit early 
-                }
+            if (this.bp && this.selectedAttacker) {
+                this.directAttack(0);
+            } else if (this.mp) {
+                this.showLPModificationPopup(0);
+            }
+        });
 
-                if (this.bp && this.selectedAttacker) {
-                    this.directAttack(1); // attack Player 2 LP
-                } else if (this.mp) {
-                    this.showLPModificationPopup(1);
-                }
-            });
-        }
+        player2LP.addEventListener('click', () => {
+            if (this.atkPassMode && this.atkPassSourceId) {
+                this.applyAtkPassToLP(1);
+                return;
+            }
+
+            if (this.activeValue) {
+                this.applyValueToLP(1);
+                return;
+            }
+
+            if (this.bp && this.selectedAttacker) {
+                this.directAttack(0);
+            } else if (this.mp) {
+                this.showLPModificationPopup(1);
+            }
+        });
+
+
+
+
 
 
 
@@ -4586,6 +4688,9 @@ console.log('Loading multiplayer client with mirroring...');
             activeValueCard: game.activeValueCard,
             randomdCount: game.randomdCount,
             diceValue: game.diceValue,
+            atkPassMode: game.atkPassMode,
+            atkPassPositive: game.atkPassPositive,
+            atkPassSourceId: game.atkPassSourceId
         };
 
         console.log('[SYNC] Sending my game state to reconnecting player');
@@ -4638,6 +4743,9 @@ console.log('Loading multiplayer client with mirroring...');
             game.activeValueCard = state.activeValueCard || null;
             game.randomdCount = state.randomdCount;
             game.diceValue = state.diceValue;
+            game.atkPassMode = state.atkPassMode;
+            game.atkPassPositive = state.atkPassPositive;
+            game.atkPassSourceId = state.atkPassSourceId;
 
             // ✅ Refresh display
             game.updateDisplay();
@@ -4820,6 +4928,10 @@ console.log('Loading multiplayer client with mirroring...');
             'resetCardStats',
             'incrementCardCount',
             'resetCardCount',
+            'toggleAtkPassMode',
+            'toggleAtkPassSign',
+            'applyAtkPassToLP',
+
 
 
 
