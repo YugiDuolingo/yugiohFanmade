@@ -125,6 +125,7 @@ class YuGiOhGame {
 
         console.log(`[ATK PASS] ${source.cn} (${source.ak}) → ${target.cn} ATK now ${target.ak}`);
         this.playSoundEffect('equip.mp3');
+        this.playCardAudio(target);
         this.atkPassSourceId = null;
         this.updateDisplay();
         this.displayAllCards();
@@ -2035,6 +2036,7 @@ class YuGiOhGame {
         if (this.atkPassMode && this.getCardType(card) === 'monster') {
             if (!this.atkPassSourceId) {
                 this.selectAtkPassSource(card.id);
+                this.playCardAudio(card);
             } else {
                 this.applyAtkPass(card.id);
             }

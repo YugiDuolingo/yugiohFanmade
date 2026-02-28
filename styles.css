@@ -165,7 +165,7 @@ body {
 
 /* UPDATED: Yu-Gi-Oh Card Styling with Image Support */
 .yugioh-card {
-  width: 25vw;
+  width: 18vw;
 
 
   height: 100%;
@@ -290,19 +290,20 @@ body {
 }
 
 .yugioh-card.monster .fusion {
-  background: linear-gradient(45deg, #705773, #f9a9fd);
+  background: rgb(90, 12, 142);
   white-space: nowrap;
   /* Prevents text from wrapping to the next line */
   overflow: hidden;
   /* Hides overflowing text */
   text-overflow: ellipsis;
   font-size: 2vw;
+  height: 10%;
 
 }
 
 
 .yugioh-card.monster .ritual {
-  background: linear-gradient(45deg, #0c85ff, #8fcdeb);
+  background: rgb(12, 96, 142);
   white-space: nowrap;
   /* Prevents text from wrapping to the next line */
   overflow: hidden;
@@ -310,6 +311,7 @@ body {
   text-overflow: ellipsis;
   font-size: 2vw;
   text-align: left;
+  height: 10%;
 
 
 }
@@ -1232,6 +1234,7 @@ body {
   padding: 0px 0px;
   color: white;
   margin-bottom: 2px;
+  user-select: none;
 }
 
 
@@ -1270,15 +1273,6 @@ body {
 
 
 
-.simulator-btn:active {
-  background: #27ae60 !important;
-  /* Green on click, like active mods */
-  transform: scale(0.98);
-}
-
-
-
-
 .bring-cards-button {
   width: 100%;
   background: #000000;
@@ -1301,6 +1295,7 @@ body {
   width: 100%;
   border-radius: 5px;
   margin-bottom: 0px;
+  user-select: none;
 }
 
 .lp-display.player2 {
@@ -1311,31 +1306,9 @@ body {
   border: 3px solid #7775ff;
 }
 
-.graveyard-section {
-  width: 100%;
-  text-align: center;
-}
 
-.graveyard-label {
-  font-size: 12px;
-  color: white;
-  margin-bottom: 2px;
-}
 
-.graveyard-count {
-  font-size: 24px;
-  font-weight: bold;
-  background: #1a1a1a;
-  color: white;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 4px auto;
-  border: 2px solid #34495e;
-}
+
 
 .check-section {
   width: 100%;
@@ -1351,39 +1324,37 @@ body {
   cursor: pointer;
 }
 
-.big-card-display .yugioh-card {
-  width: 350px;
-  height: 500px;
-  font-size: 12px;
-  /* Optionally increase image and text sizes within .yugioh-card for the popup */
-}
+
 
 
 
 /* All monster cards on field: same size */
-.monster-field-container .yugioh-card {
+/* .monster-field-container .yugioh-card {
   width: 50% !important;
   height: 100% !important;
 
   position: relative;
-}
+}  */
 
 /* Defense position indicator - "D" badge */
 .defense-indicator {
   position: absolute;
-  left: 25%;
+  left: 35%;
+  /* bottom: 20%; */
   background-color: rgba(52, 152, 219, 0.9);
   color: white;
   font-weight: bold;
   font-size: 20px;
   padding: 5px 10px;
-  border-radius: 5px;
+
   border: 2px solid white;
   z-index: 11;
   pointer-events: none;
-  border-radius: 50%;
-  width: 50%;
+  border-radius: 90%;
+  width: 30%;
 }
+
+
 
 
 /* Destroyed indicator - "X" or "💀" badge for destroyed monsters */
@@ -1417,15 +1388,6 @@ body {
     opacity: 0.9;
   }
 }
-
-/* Optional: dim the destroyed card */
-/* .yugioh-card.destroyed {
-  opacity: 0.6;
-  filter: grayscale(50%);
-}  */
-
-
-
 
 
 
@@ -1464,7 +1426,7 @@ body {
 
 /* Transfer Direction Buttons */
 .transfer-btn {
-  background-color: #1a1a1a;
+  background-color: rgba(0, 0, 0, 0.2);
   color: white;
   width: 100%;
   padding: 8px;
@@ -1500,22 +1462,8 @@ body {
   }
 }
 
-/* Modifier Buttons (if not already present) */
-.mod-btn {
-  background-color: #1a1a1a;
-  color: white;
-  width: 100%;
-  padding: 8px;
-  border-radius: 5px;
-  font-size: 14px;
-  /* Smaller than transfer for fit */
-  font-weight: bold;
-  margin-bottom: 2px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
+
+
 
 
 
@@ -1538,7 +1486,7 @@ body {
 
 
 .mod-btn {
-  background-color: #1a1a1a;
+  background-color: rgba(0, 0, 0, 0.3);
   color: white;
   width: 100%;
   padding: 8px;
@@ -1572,7 +1520,7 @@ body {
 }
 
 .close-popups-btn {
-  background-color: #b42929 !important;
+  background-color: rgb(255, 0, 0, 0.3);
   color: rgb(255, 255, 255) !important;
   width: 100% !important;
   padding: 8px !important;
@@ -1837,15 +1785,16 @@ body {
 
 .reset-stats-btn {
   position: absolute;
-  top: 10 px
-    /* wherever your atk/def display is */
-  ;
-  right: 4px;
-  background: rgba(255, 0, 0, 0.7);
+  top: 10%;
+
+  /* wherever your atk/def display is */
+
+  right: -8%;
+  background: rgba(0, 0, 0, 0.4);
   color: white;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  width: 30%;
+  height: 30%;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -1857,14 +1806,16 @@ body {
 .count-btn {
   position: absolute;
   top: 50%;
-  left: 4px;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 150, 0.8);
+  right: -8%;
+  width: 30%;
+  height: 30%;
+
+  /*transform: translateY(-50%);*/
+  background: rgba(0, 0, 0, 0.6);
   color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
+
+  font-size: 2vw;
   display: flex;
   align-items: center;
   justify-content: center;
