@@ -85,8 +85,8 @@
     }
 
     .join2 {
-      background: rgba(206, 206, 206, 0.888);
-      color: #000000
+      background: rgb(49, 49, 49);
+      color: #ffffff
     }
 
 
@@ -127,18 +127,18 @@
 
 
     <label>Room Name</label>
-    <input id="room" type="text" >
+    <input id="room" type="text">
 
     <label>Password (optional)</label>
     <input id="password" type="password" placeholder="optional">
 
     <label>Your Deck (JSON)</label>
     <textarea id="deck"></textarea>
-    
 
 
-    
-    
+
+
+
 
     <button class="create" onclick="start('create')">Create Room</button>
     <button class="create" onclick="start('join')">Join Room</button>
@@ -146,8 +146,8 @@
     <button class="join2" onclick="fillTextarea(kaiba)">Seto Kaiba</button>
     <button class="join2" onclick="fillTextarea(joey)">Joey Wheeler</button>
     <button class="join2" onclick="fillTextarea(SpNb)">Spanish numbers</button>
- 
-   
+
+
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -156,7 +156,7 @@
   <script src="joey.js"></script>
   <script src="Spanish numbers.js"></script>
 
-   <script>
+  <script>
 
 
     // Add this helper function in lobby.html
@@ -179,8 +179,8 @@
       }
     }
 
-    
-    
+
+
     function start(action) {
       const room = document.getElementById('room').value.trim();
       const password = document.getElementById('password').value || '';
@@ -216,25 +216,25 @@
     }
 
     function fillTextarea(cardData) {
-  // Check if cardData exists (from the separate file)
-  if (typeof cardData === 'undefined') {
-    console.error('cardData is not defined. Make sure cards.js is loaded before main.js');
-    return;
-  }
-  
-  // Convert the array to a formatted JSON string
-  const formattedText = JSON.stringify(cardData, null, 2);
-  
-  // Get the textarea element
-  const deckTextarea = document.getElementById('deck');
-  
-  if (deckTextarea) {
-    // Add the text to the textarea
-    deckTextarea.value = formattedText;
-  } else {
-    console.error('Textarea with id "deck" not found');
-  }
-}
+      // Check if cardData exists (from the separate file)
+      if (typeof cardData === 'undefined') {
+        console.error('cardData is not defined. Make sure cards.js is loaded before main.js');
+        return;
+      }
+
+      // Convert the array to a formatted JSON string
+      const formattedText = JSON.stringify(cardData, null, 2);
+
+      // Get the textarea element
+      const deckTextarea = document.getElementById('deck');
+
+      if (deckTextarea) {
+        // Add the text to the textarea
+        deckTextarea.value = formattedText;
+      } else {
+        console.error('Textarea with id "deck" not found');
+      }
+    }
 
   </script>
 </body>
