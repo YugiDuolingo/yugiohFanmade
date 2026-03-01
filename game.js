@@ -141,7 +141,7 @@ class YuGiOhGame {
         this.modifyLP(targetPlayerIndex, value);
         this.showDamagePopup(-value);
         console.log(`[ATK PASS LP] ${source.cn} (${source.ak}) → P${targetPlayerIndex + 1} LP`);
-        this.playSoundEffect('directattack.mp3');
+
         this.atkPassSourceId = null;
         this.displayAllCards();
     }
@@ -563,10 +563,10 @@ class YuGiOhGame {
         }
 
         console.log('Final hand sizes - P1:', this.hand[0].length, 'P2:', this.hand[1].length);
-
+        this.playSoundEffect('start.mp3');
         this.updateDisplay();
         this.displayAllCards();
-        this.playSoundEffect('start.mp3');
+
         this.setMainPhase();
 
         // Start silent auto-save every 30 seconds
@@ -2493,7 +2493,7 @@ class YuGiOhGame {
             this.setMainPhase();
         }, 1000);
 
-        this.deactivateValueSelection();
+
 
         this.updateDisplay();
         this.updateGameInfo();
@@ -3281,7 +3281,8 @@ class YuGiOhGame {
         if (this.grave[playerIndex].length > 0) {
             // Get the last card (latest card sent to graveyard)
             const card = this.grave[playerIndex].pop();
-            this.hand[playerIndex].push(card);
+            if (this.getCardType(card) === 'monster') { this.monsterField[playerIndex].push(card); }
+            else { this.spellTrapField[playerIndex].push(card); };
 
             console.log(`Player ${playerIndex + 1} returned ${card.cn} from graveyard to hand`);
             this.playCardAudio(card);

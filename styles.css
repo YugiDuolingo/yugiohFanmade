@@ -146,7 +146,7 @@ body {
 .player-hand-top,
 .player-hand-bottom {
   height: 17%;
-  width: 100vw;
+  width: 95vw;
   margin-bottom: 0px;
   display: flex;
   align-items: center;
@@ -169,7 +169,7 @@ body {
 
 
   height: 100%;
-  border: 2px solid;
+  border: 0px solid;
   border-radius: 6px;
   display: flex;
   flex-direction: column;
@@ -387,7 +387,7 @@ body {
   justify-content: center;
   font-family: 'Arial', monospace;
   /* Ensures equal character widths */
-  font-size: 1.9vw;
+  font-size: 1.7vw;
   /* 30vw ÷ 9 characters */
   letter-spacing: 0;
   transform: scaleX(1.67);
@@ -417,7 +417,7 @@ body {
 
 .player2-spell-trap {
   height: 16%;
-  width: 100vw;
+  width: 95vw;
 
   justify-content: center;
 
@@ -425,7 +425,7 @@ body {
 
 .player2-monster {
   height: 17%;
-  width: 100vw;
+  width: 95vw;
 
   border: 0px solid #000000;
   margin-bottom: 0px;
@@ -439,7 +439,7 @@ body {
 
 .player1-monster {
   height: 17%;
-  width: 100vw;
+  width: 95vw;
 
   border: 0px solid #000000;
   margin-bottom: 0px;
@@ -453,7 +453,7 @@ body {
 
 .player1-spell-trap {
   height: 16%;
-  width: 100vw;
+  width: 95vw;
 
   justify-content: center;
 
@@ -1130,17 +1130,7 @@ body {
   cursor: pointer;
 }
 
-.fullscreen-btn {
-  background: #34495e;
-  color: #fff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 7px;
-  font-size: 18px;
-  cursor: pointer;
-  margin: 4px 0;
-  transition: background 0.15s;
-}
+
 
 
 /* Fullscreen styles for the entire document */
@@ -1184,10 +1174,10 @@ body {
   /* Half viewport width for overlay coverage */
   height: 100vh !important;
   /* Full height to match viewport */
-  background: rgba(117, 115, 113, 0.5) !important;
+  background: rgba(117, 115, 113, 0.0) !important;
   /* Semi-transparent green base */
   border-radius: 8px !important;
-  border: 2px solid rgba(0, 0, 0, 0.8) !important;
+  border: 0px solid rgba(0, 0, 0, 0.8) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -1203,6 +1193,7 @@ body {
 
 .player2-deck-section,
 .player1-deck-section {
+
   text-align: center;
   color: white;
   border-radius: 5px;
@@ -1211,31 +1202,62 @@ body {
 }
 
 #player2Decksection {
-  background-color: #b42929;
+
+  background: rgb(0, 98, 255, 0);
 }
 
 #player1Decksection {
-  background-color: #2563eb;
+  background: rgb(0, 98, 255, 0);
+
 }
 
 
-.player2-deck-label,
+.player2-deck-label {
+  font-size: 12px;
+  margin-bottom: 0px;
+  background: linear-gradient(to right,
+      rgb(255, 0, 153) 0%,
+      /* Red at start */
+      rgb(255, 0, 0) 33%,
+      /* Still red at 33% */
+
+      transparent 100%
+      /* Stay transparent to the end */
+    );
+
+
+}
+
+
+
 .player1-deck-label {
   font-size: 12px;
   margin-bottom: 0px;
+  background: linear-gradient(to right,
+      rgb(67, 98, 149) 0%,
+      /* Red at start */
+      rgb(0, 98, 255) 33%,
+      /* Still red at 33% */
+
+      transparent 100%
+      /* Stay transparent to the end */
+    );
+
 }
 
 .player2-deck-count,
 .player1-deck-count {
   font-size: 24px;
   font-weight: bold;
-  background: #000000;
+  background: rgba(117, 115, 113, 0.5);
   border-radius: 3px;
   padding: 0px 0px;
   color: white;
   margin-bottom: 2px;
   user-select: none;
+  /* transform: translateX(-5%); */
 }
+
 
 
 
@@ -1802,6 +1824,12 @@ body {
   cursor: pointer;
   z-index: 50;
 }
+
+.reset-stats-btn:active {
+  background: rgba(104, 240, 217, 0.5);
+
+}
+
 
 .count-btn {
   position: absolute;
