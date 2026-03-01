@@ -52,14 +52,11 @@ body {
 
 
 
-.check-section:active {
-  background-color: #05f0cd;
-  transform: scale(0.95);
-}
 
 
+/*
 
-/* Middle Section */
+
 .middle-section {
   width: 8%;
   height: 100vh;
@@ -86,9 +83,7 @@ body {
 
 }
 
-
-
-
+*/
 .phase-indicator {
   background: #385b6e;
   color: rgb(255, 255, 255);
@@ -118,7 +113,7 @@ body {
 }
 
 
-/* Main Section */
+/* Main Section of the side bar */
 .main-section {
   width: 55%;
   height: 100%;
