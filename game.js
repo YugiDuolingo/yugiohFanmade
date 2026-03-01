@@ -4019,7 +4019,7 @@ class YuGiOhGame {
             }
 
             if (this.bp && this.selectedAttacker) {
-                this.directAttack(0);
+                this.directAttack(1);
             } else if (this.mp) {
                 this.showLPModificationPopup(1);
             }
