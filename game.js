@@ -437,45 +437,47 @@ class YuGiOhGame {
 
     }
 
-
-    setCardFilter(filterType) {
-        const popup = document.querySelector('.card-selection-popup');
-        if (popup) {
-            popup.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            const filterBtn = popup.querySelector(`.filter-btn[data-type="${filterType}"]`);
-            if (filterBtn) {
-                filterBtn.classList.add('active');
-                const selectableCards = popup.querySelectorAll('.selectable-card');
-                selectableCards.forEach(cardEl => {
-                    const cardType = cardEl.dataset.type;
-                    if (filterType === 'all' || filterType === cardType) {
-                        cardEl.classList.remove('hidden');
-                    } else {
-                        cardEl.classList.add('hidden');
-                    }
-                });
-            }
-        }
-
-    }
-
-    sortCardsAZ() {
-        const popup = document.querySelector('.card-selection-popup');
-        if (popup) {
-            const container = popup.querySelector('.card-selection');
-            if (container) {
-                const cards = Array.from(container.querySelectorAll('.selectable-card'));
-                cards.sort((a, b) => {
-                    const nameA = a.querySelector('label').textContent.trim().toLowerCase();
-                    const nameB = b.querySelector('label').textContent.trim().toLowerCase();
-                    return nameA.localeCompare(nameB);
-                });
-                container.innerHTML = '';
-                cards.forEach(card => container.appendChild(card));
-            }
-        }
-
-    }
+    /*
+     setCardFilter(filterType) {
+         const popup = document.querySelector('.card-selection-popup');
+         if (popup) {
+             popup.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+             const filterBtn = popup.querySelector(`.filter-btn[data-type="${filterType}"]`);
+             if (filterBtn) {
+                 filterBtn.classList.add('active');
+                 const selectableCards = popup.querySelectorAll('.selectable-card');
+                 selectableCards.forEach(cardEl => {
+                     const cardType = cardEl.dataset.type;
+                     if (filterType === 'all' || filterType === cardType) {
+                         cardEl.classList.remove('hidden');
+                     } else {
+                         cardEl.classList.add('hidden');
+                     }
+                 });
+             }
+         }
+ 
+     }
+     
+     sortCardsAZ() {
+         const popup = document.querySelector('.card-selection-popup');
+         if (popup) {
+             const container = popup.querySelector('.card-selection');
+             if (container) {
+                 const cards = Array.from(container.querySelectorAll('.selectable-card'));
+                 cards.sort((a, b) => {
+                     const nameA = a.querySelector('label').textContent.trim().toLowerCase();
+                     const nameB = b.querySelector('label').textContent.trim().toLowerCase();
+                     return nameA.localeCompare(nameB);
+                 });
+                 container.innerHTML = '';
+                 cards.forEach(card => container.appendChild(card));
+             }
+         }
+ 
+     }
+ 
+     */
 
 
     async autoStartGame() {
@@ -1150,6 +1152,7 @@ class YuGiOhGame {
 
             } else if (attackerATK < defenderATK) {
                 damage = defenderATK - attackerATK;
+
                 this.modifyLP(attackerPlayer, -damage);
                 battleResult = `${defender.cn} wins! ${damage} damage dealt. ${attacker.cn} can be sent to graveyard manually.`;
 
@@ -1159,6 +1162,7 @@ class YuGiOhGame {
                 battleResult = "Equal ATK! Both monsters can be sent to graveyard manually.";
                 //this.sendMonsterToGraveyard(defender, defenderPlayer);
                 this.addDestroyedIndicatorByCard(defender, defenderPlayer);
+
                 // this.sendMonsterToGraveyard(attacker, attackerPlayer); 
                 this.addDestroyedIndicatorByCard(attacker, attackerPlayer);
             }
@@ -1221,7 +1225,10 @@ class YuGiOhGame {
                     const indicator = document.createElement('div');
                     indicator.classList.add('destroyed-indicator');
                     indicator.textContent = '💀';
+
                     cardElement.appendChild(indicator);
+                    cardElement.style.animation = 'whiteFlash 0.3s ease-in-out infinite';
+
                     //cardElement.style.opacity = '0.6';
                     //cardElement.style.filter = 'grayscale(50%)';
 
@@ -1922,10 +1929,10 @@ class YuGiOhGame {
             if (location === 'hand') {
                 this.handleHandCardDoubleClick(card, playerIndex);
             } else if (location === 'field') {
-                if (this.getCardType(card) === 'monster') {
-                    this.sendMonsterToGraveyard(card, playerIndex, 1);
-                    this.playSoundEffect('graveyard.mp3');
-                }
+
+                this.sendMonsterToGraveyard(card, playerIndex, 1);
+                this.playSoundEffect('graveyard.mp3');
+
             } else if (location === 'spelltrapfield') {
                 this.sendSpellTrapToGraveyard(card, playerIndex, 1);
                 this.playSoundEffect('graveyard.mp3');

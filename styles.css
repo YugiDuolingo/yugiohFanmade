@@ -1361,7 +1361,8 @@ body {
   background-color: rgba(52, 152, 219, 0.9);
   color: white;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 2vw;
+
   padding: 5px 10px;
 
   border: 2px solid white;
@@ -1379,32 +1380,90 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+
   /* background: rgba(255, 0, 0, 0.95); */
   color: white;
   font-weight: bold;
-  font-size: 48px;
+  font-size: 6vw;
   padding: 10px 20px;
   border-radius: 10px;
   /* border: 3px solid #ff0000; */
   z-index: 9;
   pointer-events: none;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+
   animation: destroyPulse 1s infinite;
 
 }
 
+
+
+@keyframes vibrator {
+  0% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-5px) rotate(-1deg);
+  }
+
+  40% {
+    transform: translateX(5px) rotate(1deg);
+  }
+
+  60% {
+    transform: translateX(-3px) rotate(-0.5deg);
+  }
+
+  80% {
+    transform: translateX(3px) rotate(0.5deg);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+
 @keyframes destroyPulse {
 
-  0%,
-  100% {
-    opacity: 1;
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-1vw);
   }
 
   50% {
-    opacity: 0.9;
+    transform: translateX(0);
+  }
+
+  75% {
+    transform: translateX(1vw);
+  }
+
+  100% {
+    transform: translateX(0);
   }
 }
+
+@keyframes whiteFlash {
+  0% {
+    box-shadow: 0 0 0px rgba(255, 255, 255, 0);
+    background-color: transparent;
+  }
+
+  20% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+
+  100% {
+    box-shadow: 0 0 0px rgba(255, 255, 255, 0);
+    background-color: transparent;
+  }
+}
+
 
 
 
