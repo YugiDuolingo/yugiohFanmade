@@ -73,9 +73,244 @@ class YuGiOhGame {
         this.atkPassPositive = true;
         this.atkPassSourceId = null;
 
+        this.demoMode = false;
+        this.innervDebug = false;
+
+
+
 
         console.log('Game state initialized');
     }
+
+    debugInnerValue(card, ownerIndex) {
+        console.group(`[INNER VALUE DEBUG] ${card.cn}`);
+        console.log('Raw innerValue string:', card.innerValue);
+
+        const parsed = this.parseInnerValue(card.innerValue);
+        console.log('Parsed result:', parsed);
+
+        if (!parsed) {
+            console.error('PARSE FAILED — check format');
+            console.groupEnd();
+            return;
+        }
+
+        console.log('Filters:', {
+            name: parsed.nameFilter,
+            race: parsed.raceFilter,
+            attribute: parsed.attrFilter
+        });
+        console.log('Zones:', parsed.zones);
+        console.log('Bonuses: ATK+', parsed.atkBonus, 'DEF+', parsed.defBonus);
+
+        const opponentIndex = ownerIndex === 0 ? 1 : 0;
+
+        console.group('Zone counts:');
+        console.log('ownerField    :', (this.monsterField[ownerIndex] || []).map(c => c.cn));
+        console.log('opponentField :', (this.monsterField[opponentIndex] || []).map(c => c.cn));
+        console.log('ownerGrave    :', (this.grave[ownerIndex] || []).map(c => c.cn));
+        console.log('opponentGrave :', (this.grave[opponentIndex] || []).map(c => c.cn));
+        console.log('ownerHand     :', (this.hand[ownerIndex] || []).map(c => c.cn));
+        console.log('opponentHand  :', (this.hand[opponentIndex] || []).map(c => c.cn));
+        console.groupEnd();
+
+        const count = this.countInnerValueCards(parsed, ownerIndex);
+        console.log('Total matching cards counted:', count);
+        console.log('Expected ATK:', card.originalAk + (parsed.atkBonus * count));
+        console.log('Expected DEF:', card.originalDf + (parsed.defBonus * count));
+        console.groupEnd();
+    }
+
+    parseInnerValue(innerValueStr) {
+        if (!innerValueStr) return null;
+
+        // Format: filterStr/ZZZZZZZ/atkBonus*defBonus
+        // Example: cn:dark magician/00GG00/300*0
+        // Example: &&:cn:dark,tr<5/FF0000/500*500
+        // Example: co/FFGGFF/1000*1000
+
+        // const match = innerValueStr.match(/^(.+?)\/([A-Z0-9]{6})\/(\d+)\*(\d+)$/);
+        const match = innerValueStr.match(/^(.+?)\/([A-Z0-9]{6})\/([-]?\d+)\*([-]?\d+)$/);
+        if (!match) {
+            console.error(`[INNER VALUE] Invalid format: ${innerValueStr}`);
+            return null;
+        }
+
+        const filterStr = match[1].trim();
+        const zones = match[2];
+        const atkBonus = parseInt(match[3]);
+        const defBonus = parseInt(match[4]);
+
+        return {
+            parsedFilters: this.parseFilters(filterStr),
+            zones: {
+                ownerField: zones[0] !== '0' ? zones[0] : null,
+                opponentField: zones[1] !== '0' ? zones[1] : null,
+                ownerGrave: zones[2] !== '0' ? zones[2] : null,
+                opponentGrave: zones[3] !== '0' ? zones[3] : null,
+                ownerHand: zones[4] !== '0' ? zones[4] : null,
+                opponentHand: zones[5] !== '0' ? zones[5] : null,
+            },
+            atkBonus,
+            defBonus
+        };
+    }
+
+    parseFilters(filterStr) {
+        if (!filterStr || filterStr === 'co') return { mode: 'co', conditions: [] };
+
+        // Detect AND/OR mode
+        let mode = '&&'; // default AND
+        let cleanStr = filterStr;
+
+        if (filterStr.startsWith('&&:')) {
+            mode = '&&';
+            cleanStr = filterStr.slice(3);
+        } else if (filterStr.startsWith('or:')) {
+            mode = 'or';
+            cleanStr = filterStr.slice(3);
+        }
+
+        // Split by comma into individual conditions
+        const conditions = cleanStr.split(',').map(cond => {
+            cond = cond.trim();
+
+            // cn:red — name contains
+            const cnMatch = cond.match(/^cn:(.+)$/);
+            if (cnMatch) return { key: 'cn', op: 'contains', value: cnMatch[1].toLowerCase() };
+
+            // tp:dragon — race contains
+            const tpMatch = cond.match(/^tp:(.+)$/);
+            if (tpMatch) return { key: 'tp', op: 'contains', value: tpMatch[1].toLowerCase() };
+
+            // At:monster / At:spell / At:trap / At:dark / At:light etc
+            const atMatch = cond.match(/^At:(.+)$/);
+            if (atMatch) return { key: 'At', op: 'contains', value: atMatch[1].toLowerCase() };
+
+            // Numeric filters: ak, df, tr with operators =, <, >, <=, >=
+            // const numMatch = cond.match(/^(ak|df|tr)(<=|>=|<|>|=)(\d+)$/);
+            const numMatch = cond.match(/^(ak|df|tr)(<=|>=|<|>|=)(-?\d+)$/);
+            if (numMatch) return { key: numMatch[1], op: numMatch[2], value: parseInt(numMatch[3]) };
+
+            console.warn(`[FILTER] Unrecognized condition: ${cond}`);
+            return null;
+        }).filter(Boolean);
+
+        return { mode, conditions };
+    }
+
+    matchesFilters(card, parsedFilters) {
+        if (!card) return false;
+        if (parsedFilters.mode === 'co') return true; // count all
+
+        const { mode, conditions } = parsedFilters;
+
+        const results = conditions.map(cond => {
+            switch (cond.key) {
+                case 'cn':
+                    return card.cn && card.cn.toLowerCase().includes(cond.value);
+
+                case 'tp':
+                    return card.tp && card.tp.toLowerCase().includes(cond.value);
+
+                case 'atr': {
+                    const v = cond.value;
+                    if (v === 'monster') return this.getCardType(card) === 'monster';
+                    // if (v === 'spell') return this.getCardType(card) === 'spell';
+                    // if (v === 'trap') return this.getCardType(card) === 'trap';
+                    // attribute like dark, light etc
+                    return card.atr && card.atr.toLowerCase().includes(v);
+                }
+
+                case 'ak':
+                case 'df':
+                case 'tr': {
+                    const cardVal = card[cond.key];
+                    if (cardVal === undefined) return false;
+                    switch (cond.op) {
+                        case '=': return cardVal === cond.value;
+                        case '<': return cardVal < cond.value;
+                        case '>': return cardVal > cond.value;
+                        case '<=': return cardVal <= cond.value;
+                        case '>=': return cardVal >= cond.value;
+                    }
+                }
+
+                default: return false;
+            }
+        });
+
+        return mode === '&&'
+            ? results.every(Boolean)   // ALL must pass
+            : results.some(Boolean);   // ANY must pass
+    }
+
+    countInnerValueCards(parsedInner, ownerIndex, sourceCard) {
+        const opponentIndex = ownerIndex === 0 ? 1 : 0;
+        const pf = parsedInner.parsedFilters;
+        let count = 0;
+
+        const check = (arr) => (arr || []).filter(c =>
+            c && c !== sourceCard && this.matchesFilters(c, pf)
+        ).length;
+
+        if (parsedInner.zones.ownerField) {
+            count += check(this.monsterField[ownerIndex]);
+            count += check(this.spellTrapField[ownerIndex]);
+
+        }
+
+        if (parsedInner.zones.opponentField) {
+            count += check(this.monsterField[opponentIndex]);
+            count += check(this.spellTrapField[opponentIndex]);
+
+        }
+
+        if (parsedInner.zones.ownerGrave) count += check(this.grave[ownerIndex]);
+        if (parsedInner.zones.opponentGrave) count += check(this.grave[opponentIndex]);
+        if (parsedInner.zones.ownerHand) count += check(this.hand[ownerIndex]);
+        if (parsedInner.zones.opponentHand) count += check(this.hand[opponentIndex]);
+
+        return count;
+    }
+
+    applyInnerValue(card, ownerIndex) {
+        if (!card.innerValue) return;
+
+        const parsed = this.parseInnerValue(card.innerValue);
+        if (!parsed) return;
+
+        const count = this.countInnerValueCards(parsed, ownerIndex, card);
+
+        const newBonusAk = parsed.atkBonus * count;
+        const newBonusDf = parsed.defBonus * count;
+
+        const prevAk = card.prevAkBonus || 0;
+        const prevDf = card.prevDfBonus || 0;
+
+        card.ak += newBonusAk - prevAk;
+        card.df += newBonusDf - prevDf;
+
+        card.prevAkBonus = newBonusAk;
+        card.prevDfBonus = newBonusDf;
+
+        console.log(`[INNER VALUE] ${card.cn} count=${count} → ATK:${card.ak} DEF:${card.df}`);
+    }
+
+    moveMonsterToSpellTrap(cardId, playerIndex) {
+        const cardIndex = this.monsterField[playerIndex].findIndex(c => c.id === cardId);
+        if (cardIndex === -1) return;
+
+        const card = this.monsterField[playerIndex].splice(cardIndex, 1)[0];
+        card.faceUp = true;
+        this.spellTrapField[playerIndex].push(card);
+
+        console.log(`[MOVE] ${card.cn} moved from monster field to spell/trap field`);
+        this.updateDisplay();
+        this.displayAllCards();
+    }
+
+
 
     toggleAtkPassMode() {
         this.atkPassMode = !this.atkPassMode;
@@ -598,9 +833,12 @@ class YuGiOhGame {
             this.monsterField[1].find(c => c.id === cardId);
         if (!card) return;
         if (card.originalAk !== undefined) card.ak = card.originalAk;
+        if (card.prevAkBonus !== undefined) card.prevAkBonus = 0;
         if (card.originalDf !== undefined) card.df = card.originalDf;
+        if (card.prevDfBonus !== undefined) card.prevDfBonus = 0;
         console.log(`${card.cn} stats reset to ATK:${card.ak} DEF:${card.df}`);
         this.playSoundEffect('reset.mp3');
+        this.updateDisplay();
         this.displayAllCards();
     }
 
@@ -925,6 +1163,10 @@ class YuGiOhGame {
                 removedCard.df = removedCard.originalDf;
             }
 
+            if (removedCard.prevAkBonus !== undefined) card.prevAkBonus = 0;
+
+            if (removedCard.prevDfBonus !== undefined) card.prevDfBonus = 0;
+
             // Send to OWNER's graveyard (based on ID), not current field owner
             if (removedCard.top !== undefined) {
                 this.deck[ownerIndex].push(removedCard);
@@ -1152,7 +1394,6 @@ class YuGiOhGame {
 
             } else if (attackerATK < defenderATK) {
                 damage = defenderATK - attackerATK;
-
                 this.modifyLP(attackerPlayer, -damage);
                 battleResult = `${defender.cn} wins! ${damage} damage dealt. ${attacker.cn} can be sent to graveyard manually.`;
 
@@ -1227,7 +1468,7 @@ class YuGiOhGame {
                     indicator.textContent = '💀';
 
                     cardElement.appendChild(indicator);
-                    cardElement.style.animation = 'whiteFlash 0.3s ease-in-out infinite';
+                    cardElement.style.animation = 'vibrator 0.3s ease-in-out infinite';
 
                     //cardElement.style.opacity = '0.6';
                     //cardElement.style.filter = 'grayscale(50%)';
@@ -1438,7 +1679,7 @@ class YuGiOhGame {
             // Always create real card
             const cardElement = this.createYuGiOhCard(this.hand[0][i], i, 1, 'hand');
 
-            if (shouldHide) {
+            if (shouldHide && this.demoMode === false) {
                 // Opponent's hand - add face-down class to hide content
                 cardElement.classList.add('opponent-facedown');
             }
@@ -1476,7 +1717,7 @@ class YuGiOhGame {
             // Always create real card
             const cardElement = this.createYuGiOhCard(this.hand[1][i], i, 2, 'hand');
 
-            if (shouldHide) {
+            if (shouldHide && this.demoMode === false) {
                 // Opponent's hand - add face-down class to hide content
                 cardElement.classList.add('opponent-facedown');
             }
@@ -1576,6 +1817,25 @@ class YuGiOhGame {
             cardDiv.classList.add('player2');
         }
 
+        if (location === 'field' && card.faceUp !== false && this.getCardType(card) === 'monster' && this.innervDebug === true) {
+            const ivTextarea = document.createElement('textarea');
+            ivTextarea.className = 'inner-value-textarea';
+            ivTextarea.value = card.innerValue || '';
+            ivTextarea.placeholder = 'inner value...';
+            ivTextarea.addEventListener('click', (e) => e.stopPropagation());
+            ivTextarea.addEventListener('dblclick', (e) => e.stopPropagation());
+            ivTextarea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    card.innerValue = ivTextarea.value.trim() || undefined;
+                    console.log(`[INNER VALUE] Set on ${card.cn}:`, card.innerValue);
+                    this.displayAllCards();
+                }
+            });
+            cardDiv.appendChild(ivTextarea);
+        }
+
 
         // Brown color for face-down cards
         if ((location === 'field' || location === 'spelltrapfield') && !card.faceUp) {
@@ -1638,14 +1898,23 @@ class YuGiOhGame {
         nameSection.appendChild(cnClass);
         //nameSection.appendChild(atrClass);
 
-        /* if (card.value === undefined) {
-             card.value = this.getCardType(card) === 'monster' ? 'a500' : 'a-500';
-         } */
+
         if (this.getCardType(card) === 'monster' && !card.value) {
             card.value = `R${card.ak}`;
         } else if (this.getCardType(card) === 'monster' && card.value && card.value.startsWith('R')) {
             card.value = `R${card.ak}`; // always sync R values with current ATK
         }
+
+
+        if (card.innerValue && location === 'field') {
+            this.debugInnerValue(card, player - 1 === 1 ? 0 : 1);
+            this.applyInnerValue(card, player - 1 === 1 ? 0 : 1);
+        }
+
+
+
+
+
         if (card.faceUp !== false && (location === 'field' || location === 'spelltrapfield')) {
             const valueDiv = document.createElement('div');
             valueDiv.className = 'card-value-div';
@@ -1672,6 +1941,20 @@ class YuGiOhGame {
                     // Activate this card's value
                     this.activateValueSelection(card, player === 1 ? 0 : 1);
                 }
+            });
+
+            let holdTimer;
+            valueDiv.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                holdTimer = setTimeout(() => {
+                    this.moveMonsterToSpellTrap(card.id, player === 1 ? 0 : 1);
+                }, 600);
+            });
+            valueDiv.addEventListener('mouseup', (e) => {
+                clearTimeout(holdTimer);
+            });
+            valueDiv.addEventListener('mouseleave', (e) => {
+                clearTimeout(holdTimer);
             });
 
             nameSection.appendChild(valueDiv);
@@ -2190,6 +2473,9 @@ class YuGiOhGame {
                         if (this.getCardType(transferredCard) === 'monster') {
                             if (transferredCard.originalAk !== undefined) transferredCard.ak = transferredCard.originalAk;
                             if (transferredCard.originalDf !== undefined) transferredCard.df = transferredCard.originalDf;
+                            transferredCard.prevAkBonus = 0;
+                            transferredCard.prevDfBonus = 0;
+
                         }
                         this.hand[targetPlayerIndex].push(transferredCard);
                         console.log(`${transferredCard.cn} returned from own field to P${targetPlayerIndex + 1} hand`);
@@ -3605,6 +3891,16 @@ class YuGiOhGame {
         box-sizing: border-box;
     "/>
 </div>
+<div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+    <button id="toggle-demo-btn" class="audio-toggle-btn game-mode-btn">
+        🎭 Demo Mode<br>
+        <span class="mode-status">${this.demoMode ? 'ON' : 'OFF'}</span>
+    </button>
+    <button id="toggle-innerv-debug-btn" class="audio-toggle-btn game-mode-btn">
+        ⚙ Inner V Debug<br>
+        <span class="mode-status">${this.innervDebug ? 'ON' : 'OFF'}</span>
+    </button>
+</div>
             
             
             <div style="display: flex; gap: 10px; justify-content: center;">
@@ -3633,6 +3929,9 @@ class YuGiOhGame {
         const ttsBtn = popup.querySelector('#toggle-tts-btn');
         const getStats = popup.querySelector('#get-gameStats');
         const ttsLangInput = popup.querySelector('#tts-lang-input');
+        const demoBtn = document.getElementById('toggle-demo-btn');
+        const innervDebugBtn = document.getElementById('toggle-innerv-debug-btn');
+
 
         ttsLangInput.addEventListener('input', () => {
             localStorage.setItem('tts_lang', ttsLangInput.value.trim());
@@ -3714,11 +4013,36 @@ class YuGiOhGame {
             }
         });
 
+        demoBtn.addEventListener('click', () => {
+            this.toggleDemoMode();
+            demoBtn.classList.toggle('mode-btn-on', this.demoMode);
+            demoBtn.querySelector('.mode-status').textContent = this.demoMode ? 'ON' : 'OFF';
+        });
+
+        innervDebugBtn.addEventListener('click', () => {
+            this.toggleInnervDebug();
+            innervDebugBtn.classList.toggle('mode-btn-on', this.innervDebug);
+            innervDebugBtn.querySelector('.mode-status').textContent = this.innervDebug ? 'ON' : 'OFF';
+            this.displayAllCards();
+        });
+
         // Cancel button
         cancelBtn.addEventListener('click', () => {
             popup.remove();
             console.log('[RESTART] Cancelled');
         });
+    }
+
+    toggleDemoMode() {
+        this.demoMode = !this.demoMode;
+        console.log(`[DEMO MODE] ${this.demoMode ? 'ON' : 'OFF'}`);
+        this.displayAllCards();
+    }
+
+    toggleInnervDebug() {
+        this.innervDebug = !this.innervDebug;
+        console.log(`[INNERV DEBUG] ${this.innervDebug ? 'ON' : 'OFF'}`);
+        this.displayAllCards();
     }
 
     // Normal restart (original behavior)
@@ -3740,8 +4064,8 @@ class YuGiOhGame {
             destroyed: undefined
         }));
 
-        this.extraDeck[0] = this.originalExtraDeck[0].map(card => ({ ...card }));
-        this.extraDeck[1] = this.originalExtraDeck[1].map(card => ({ ...card }));
+        this.extraDeck[0] = this.originalExtraDeck[0];
+        this.extraDeck[1] = this.originalExtraDeck[1];
         console.log('[RESTART] Extra decks restored:', this.extraDeck[0].length, 'vs', this.extraDeck[1].length);
 
         this.deck[1] = this.originalDeck[1].map(card => ({
@@ -3753,6 +4077,10 @@ class YuGiOhGame {
             justSummoned: undefined,
             destroyed: undefined
         }));
+
+        // 5. Shuffle decks
+        this.deterministicShuffleDeck(0);
+        this.deterministicShuffleDeck(1);
 
         // 3. Clear all zones
         this.hand = [[], []];
@@ -4941,6 +5269,9 @@ console.log('Loading multiplayer client with mirroring...');
             'toggleAtkPassMode',
             'toggleAtkPassSign',
             'applyAtkPassToLP',
+            'toggleDemoMode',
+            //'toggleInnervDebug',
+            'moveMonsterToSpellTrap',
 
 
 

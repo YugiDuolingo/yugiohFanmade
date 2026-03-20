@@ -10,6 +10,17 @@ const yugi =
       "tp": "rock",
       "desc": " "
     },
+
+    {
+      "cn": "Alpha The Magnet Warrior",
+      "atr": "earth",
+      "tr": 4,
+      "ak": 1700,
+      "df": 1500,
+      "tp": "rock",
+      "desc": " "
+    },
+
     {
       "cn": "Beta The Magnet Warrior",
       "atr": "earth",
@@ -53,15 +64,7 @@ const yugi =
     },
 
 
-    {
-      "cn": "Berfomet",
-      "atr": "dark",
-      "tr": 5,
-      "ak": 1400,
-      "df": 1800,
-      "tp": "fiend",
-      "desc": "When this card is Normal or Flip Summoned, you can add 1 \"Gazelle the King of Mythical Beasts\" from your Deck to your hand."
-    },
+
 
     {
       "cn": "big shield guardna",
@@ -96,6 +99,7 @@ const yugi =
       "tr": 7,
       "ak": 2500,
       "df": 2100,
+      "innerValue": "cn:dark magician/00GG00/300*0",
       "tp": "fairy",
       "desc": " "
     },
@@ -106,19 +110,12 @@ const yugi =
       "ak": 2000,
       "df": 1700,
       "tp": "Spell-caster",
+      "innerValue": "cn:dark magician/00GG00/300*0",
       "value": "a300",
       "desc": "This card gains 300 ATK for every \"Dark Magician\" or \"Magician of Black Chaos\" in either player's Graveyard."
     },
 
-    {
-      "cn": "Gazelle",
-      "atr": "earth",
-      "tr": 4,
-      "ak": 1500,
-      "df": 1200,
-      "tp": "beast",
-      "desc": " "
-    },
+
     {
       "cn": "giant soldier of stone",
       "atr": "earth",
@@ -299,49 +296,18 @@ const yugi =
       "tp": "warrior",
       "desc": "If this is the only card in your hand, you can Normal Summon it without Tributing."
     },
-    {
-      "cn": "Gaia the Dragon Champion",
-      "atr": "wind",
-      "tr": 7,
-      "ak": 2600,
-      "df": 2300,
-      "tp": "dragon",
-      "extra": "true",
-      "clr": 1
-    },
-    {
-      "cn": "Black Luster Soldier",
-      "atr": "light",
-      "tr": 8,
-      "ak": 3000,
-      "df": 2500,
-      "tp": "warrior",
-      "clr": 2
-    },
+
+
     {
       "cn": "emergency provision",
       "atr": "spell",
       "value": "a1000",
       "desc": "Send any number of other Spells/Traps you control to the GY; gain 1000 LP for each card sent to the GY this way."
     },
-    {
-      "cn": "Black Luster Ritual",
-      "atr": "spell",
-      "desc": "This card is used to Ritual Summon \"Black Luster Soldier\". You must also Tribute monsters from your hand or field whose total Levels equal 8 or more."
-    },
 
 
-    {
-      "cn": "Chimera the Flying Mythical Beast",
-      "atr": "wind",
-      "tr": 6,
-      "ak": 2100,
-      "df": 1800,
-      "tp": "beast",
-      "extra": "true",
-      "clr": 1,
-      "desc": "When this card is destroyed, you can select and Special Summon either \"Berfomet\" or \"Gazelle the King of Mythical Beasts\" from your Graveyard."
-    },
+
+
     {
       "cn": "Electromagnetic Turtle",
       "atr": "light",
@@ -363,7 +329,9 @@ const yugi =
       "ak": 300,
       "df": 200,
       "tp": "fiend",
-      "extra": "true"
+      "extra": "true",
+      "value": "sendED"
+
     },
     {
       "cn": "kuriboh token",
@@ -372,7 +340,8 @@ const yugi =
       "ak": 300,
       "df": 200,
       "tp": "fiend",
-      "extra": "true"
+      "extra": "true",
+      "value": "sendED"
     },
     {
       "cn": "kuriboh token",
@@ -381,7 +350,8 @@ const yugi =
       "ak": 300,
       "df": 200,
       "tp": "fiend",
-      "extra": "true"
+      "extra": "true",
+      "value": "sendED"
     },
     {
       "cn": "kuriboh token",
@@ -390,7 +360,8 @@ const yugi =
       "ak": 300,
       "df": 200,
       "tp": "fiend",
-      "extra": "true"
+      "extra": "true",
+      "value": "sendED"
     },
     {
       "cn": "kuriboh token",
@@ -399,7 +370,8 @@ const yugi =
       "ak": 300,
       "df": 200,
       "tp": "fiend",
-      "extra": "true"
+      "extra": "true",
+      "value": "sendED"
     },
     {
       "cn": "Kuriboh",
@@ -460,16 +432,7 @@ const yugi =
 
 
 
-    {
-      "cn": "polymerisation",
-      "atr": "spell",
-      "desc": " "
-    },
-    {
-      "cn": "polymerisation",
-      "atr": "spell",
-      "desc": " "
-    },
+
 
     {
       "cn": "Skilled Dark Magician",
@@ -478,6 +441,7 @@ const yugi =
       "ak": 1900,
       "df": 1700,
       "tp": "rock",
+      "count": 0,
       "desc": "Each time you or your opponent activates 1 Spell Card, put 1 Spell Counter on this card (max. 3). Tribute this card with 3 Spell Counters on it to Special Summon 1 Dark Magician from your hand, Deck, or Graveyard."
     },
 
@@ -508,7 +472,70 @@ const yugi =
       "atr": "spell",
       "value": "b700",
       "top": "top",
-      "desc": "+700 attack defense "
+      "desc": "+700 attack defense, if destroyed plae it on top of your deck "
+    },
+
+    {
+      "cn": "Mystic Box",
+      "atr": "spell",
+      "desc": "Select 1 monster on each side of the field. Destroy the selected opponent's monster and shift control of your selected monster to your opponent."
+    },
+    {
+      "cn": "Magic Formula",
+      "atr": "spell",
+      "value": "a500",
+      "desc": "Equip only to a Spellcaster-Type monster. It gains 500 ATK."
+    },
+    {
+      "cn": "Dark Magic Curtain",
+      "atr": "spell",
+      "value": "a*0.5",
+      "desc": "If you activate this card, you cannot Normal Summon or Special Summon this turn. You can pay half your Life Points to Special Summon 1 \"Dark Magician\" from your Deck."
+    },
+    {
+      "cn": "Shift",
+      "atr": "trap",
+      "desc": "You can activate this card when your opponent designates 1 monster on your side of the field as the target of a Spell, Trap, or battle attack. Change the target to a different monster on your side of the field."
+    },
+    {
+      "cn": "Thousand Knives",
+      "atr": "spell",
+      "desc": "You can only activate this card when you have a face-up \"Dark Magician\" on your side of the field. Destroy 1 monster on your opponent's side of the field."
+    },
+    {
+      "cn": "Dark Renewal",
+      "atr": "trap",
+      "desc": "When your opponent Summons a monster(s) or attacks: Target 1 of those monsters and 1 monster you control; send both monsters to the Graveyard, then you can Special Summon 1 Spellcaster monster from your Deck or Graveyard"
+    },
+    {
+      "cn": "Buster Blader",
+      "atr": "earth",
+      "tr": 7,
+      "ak": 2600,
+      "df": 2300,
+      "tp": "warrior",
+      "innerValue": "tp:dragon/000101/500*0",
+      "desc": "Increase the ATK of this card by 500 points for each Dragon-Type monster on your opponent's side of the field and in your opponent's Graveyard."
+    },
+    {
+      "cn": "Beast of Gilfer",
+      "atr": "dark",
+      "tr": 6,
+      "ak": 2200,
+      "df": 2500,
+      "tp": "fiend",
+      "value": "a-500"
+    },
+    {
+      "cn": "Dust Tornado",
+      "atr": "trap",
+      "desc": "Target 1 Spell/Trap your opponent controls; destroy that target, then you can Set 1 Spell/Trap from your hand."
+    },
+
+
+    {
+      "cn": "Dark Hole",
+      "atr": "spell"
     }
   ]
 
