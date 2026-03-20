@@ -1630,7 +1630,7 @@ body {
 }
 
 .yugioh-card.opponent-facedown::before {
-  content: 'FACE-DOWN';
+  content: 'ziki';
   display: flex;
   align-items: center;
   justify-content: center;

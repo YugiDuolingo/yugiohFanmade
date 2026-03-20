@@ -1888,7 +1888,7 @@ class YuGiOhGame {
         const cnClass = document.createElement('span');
         cnClass.className = 'cn-class';
         cnClass.textContent = card.faceUp === false && (location === 'field' || location === 'spelltrapfield')
-            ? 'FACE-DOWN' : card.cn;
+            ? card.cn : card.cn;
 
         const atrClass = document.createElement('span');
         atrClass.className = 'atr-class';
@@ -2661,14 +2661,7 @@ class YuGiOhGame {
             btn.classList.toggle('active', this.peekMode);
 
             // Automatically turn off after 1 second
-            if (this.peekMode) {
-                setTimeout(() => {
-                    this.peekMode = false;
-                    btn.classList.remove('active');
-                    console.log('Peek mode: OFF (auto)');
-                    this.displayAllCards(); // Refresh display
-                }, 3000);
-            }
+            
         }
 
         console.log('Peek mode:', this.peekMode ? 'ON' : 'OFF');
