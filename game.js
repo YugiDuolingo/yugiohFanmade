@@ -1966,7 +1966,7 @@ class YuGiOhGame {
 
             const resetDiv = document.createElement('div');
             resetDiv.className = 'reset-stats-btn';
-            resetDiv.textContent = '↺';
+            //resetDiv.textContent = '↺';
             resetDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.resetCardStats(card.id);
@@ -2661,7 +2661,7 @@ class YuGiOhGame {
             btn.classList.toggle('active', this.peekMode);
 
             // Automatically turn off after 1 second
-            
+
         }
 
         console.log('Peek mode:', this.peekMode ? 'ON' : 'OFF');
