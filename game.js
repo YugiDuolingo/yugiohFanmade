@@ -4079,8 +4079,10 @@ class YuGiOhGame {
             destroyed: undefined
         }));
 
-        this.extraDeck[0] = this.originalExtraDeck[0];
-        this.extraDeck[1] = this.originalExtraDeck[1];
+        this.extraDeck[0] = this.originalExtraDeck[0].map(card => ({ ...card })); // Deep copy
+        this.extraDeck[1] = this.originalExtraDeck[1].map(card => ({ ...card })); // Deep copy
+        //this.extraDeck[0] = this.originalExtraDeck[0];
+        //this.extraDeck[1] = this.originalExtraDeck[1];
         console.log('[RESTART] Extra decks restored:', this.extraDeck[0].length, 'vs', this.extraDeck[1].length);
 
         this.deck[1] = this.originalDeck[1].map(card => ({
@@ -4108,9 +4110,7 @@ class YuGiOhGame {
         this.turnCounter = 1;
         this.firstTurn = true;
 
-        // 5. Shuffle decks
-        this.deterministicShuffleDeck(0);
-        this.deterministicShuffleDeck(1);
+
 
         // 6. Draw starting hands - 6 for P1, 5 for P2
         for (let i = 0; i < 6; i++) {
@@ -5014,6 +5014,7 @@ console.log('Loading multiplayer client with mirroring...');
             deck: game.deck,
             extraDeck: game.extraDeck,
             hand: game.hand,
+            originalExtraDeck: game.originalExtraDeck,
 
             monsterField: game.monsterField,
             spellTrapField: game.spellTrapField,
@@ -5071,6 +5072,7 @@ console.log('Loading multiplayer client with mirroring...');
             // ✅ Restore all game state
             game.deck = state.deck;
             game.extraDeck = state.extraDeck;
+            game.originalExtraDeck = state.originalExtraDeck;
             game.hand = state.hand;
             game.monsterField = state.monsterField;
             game.spellTrapField = state.spellTrapField;
