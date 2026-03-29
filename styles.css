@@ -250,7 +250,8 @@ body {
 
 /* Peek mode - reduce opacity to see through */
 .yugioh-card.face-down.peek-active::after {
-  opacity: 0.3;
+  opacity: 0.6;
+
   /* Semi-transparent, can see card underneath */
 }
 

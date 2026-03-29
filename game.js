@@ -475,7 +475,7 @@ class YuGiOhGame {
         };
 
         this.activeValue = parsed;
-        this.playSoundEffect('value.mp3');
+        this.playSoundEffectV2('value.mp3');
 
         // Update display to show active state
         this.displayAllCards();
@@ -486,7 +486,16 @@ class YuGiOhGame {
         console.log('[VALUE] Deactivated value selection');
         this.activeValueCard = null;
         this.activeValue = null;
-        this.playSoundEffect('deactivate.mp3');
+        this.playSoundEffectV2('deactivate.mp3');
+        this.displayAllCards();
+    }
+
+    // Deactivate value selection v2 : just added v2 to the name , v2 wont be mirrored
+    deactivateValueSelectionV2() {
+        console.log('[VALUE] Deactivated value selection');
+        this.activeValueCard = null;
+        this.activeValue = null;
+        this.playSoundEffectV2('deactivate.mp3');
         this.displayAllCards();
     }
 
@@ -918,6 +927,19 @@ class YuGiOhGame {
 
 
     playSoundEffect(filename) {
+        try {
+            const audio = new Audio(`sfx/${filename}`);
+            audio.volume = 0.5;
+            audio.play().catch(e => {
+                console.log(`Could not play sound effect ${filename}:`, e.message);
+            });
+            console.log(`Playing sound effect: ${filename}`);
+        } catch (error) {
+            console.log(`Sound effect file not found: ${filename}`);
+        }
+    }
+
+    playSoundEffectV2(filename) {
         try {
             const audio = new Audio(`sfx/${filename}`);
             audio.volume = 0.5;
@@ -1976,7 +1998,7 @@ class YuGiOhGame {
         }
 
         // Count div (only for cards with count property)
-        if (card.count !== undefined) {
+        if (card.count !== undefined && (location === 'field' || location === 'spelltrapfield') && card.faceUp !== false) {
 
 
             const countDiv = document.createElement('div');
@@ -2616,7 +2638,7 @@ class YuGiOhGame {
                     this.hand[targetPlayerIndex].push(transferredCard);
 
                     console.log(`${card.cn} transferred from field (P${sourcePlayerIndex + 1}) to hand of P${this.activeTransferPlayer}`);
-                    this.playCardAudio(transferredCard); // Audio feedback
+                    if (transferredCard.faceUp) { this.playCardAudio(transferredCard); }// Audio feedback 
                     this.activeTransferPlayer = null; // Clear after transfer
                     document.querySelectorAll('.transfer-btn').forEach(btn => btn.classList.remove('active')); // Deactivate buttons
 
@@ -2679,9 +2701,9 @@ class YuGiOhGame {
         this.selectedTarget = null;
         this.hideBattleStatus();
         this.updatePhaseDisplay('MP');
-        this.deactivateValueSelection();
+        this.deactivateValueSelectionV2();
         this.updateGameInfo();
-        this.displayAllCards();
+        // this.displayAllCards();
 
     }
 
@@ -2726,8 +2748,8 @@ class YuGiOhGame {
             this.updateBattleStatus("Battle Phase! Multiple attacks allowed. Select attacker, then target, then confirm.");
         }
 
-        this.deactivateValueSelection();
-        this.displayAllCards();
+        this.deactivateValueSelectionV2();
+        // this.displayAllCards();
     }
 
     setEndPhase() {
@@ -3660,7 +3682,7 @@ class YuGiOhGame {
         const checkButton = document.querySelector('.check-section');
         checkButton.classList.remove('active');
 
-        this.deactivateValueSelection();
+        this.deactivateValueSelectionV2();
 
         // List of all popup classes to remove
         const popupSelectors = [
@@ -5021,7 +5043,8 @@ console.log('Loading multiplayer client with mirroring...');
             diceValue: game.diceValue,
             atkPassMode: game.atkPassMode,
             atkPassPositive: game.atkPassPositive,
-            atkPassSourceId: game.atkPassSourceId
+            atkPassSourceId: game.atkPassSourceId,
+            demoMode: game.demoMode,
         };
 
         console.log('[SYNC] Sending my game state to reconnecting player');
@@ -5077,6 +5100,7 @@ console.log('Loading multiplayer client with mirroring...');
             game.atkPassMode = state.atkPassMode;
             game.atkPassPositive = state.atkPassPositive;
             game.atkPassSourceId = state.atkPassSourceId;
+            game.demoMode = state.demoMode;
 
             // ✅ Refresh display
             game.updateDisplay();

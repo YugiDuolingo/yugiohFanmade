@@ -5,8 +5,8 @@ const yugi =
       "cn": "Alpha The Magnet Warrior",
       "atr": "earth",
       "tr": 4,
-      "ak": 1700,
-      "df": 1500,
+      "ak": 1400,
+      "df": 1700,
       "tp": "rock",
       "desc": " "
     },
@@ -15,8 +15,8 @@ const yugi =
       "cn": "Alpha The Magnet Warrior",
       "atr": "earth",
       "tr": 4,
-      "ak": 1700,
-      "df": 1500,
+      "ak": 1400,
+      "df": 1700,
       "tp": "rock",
       "desc": " "
     },
