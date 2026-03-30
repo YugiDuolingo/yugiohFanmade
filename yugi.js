@@ -514,7 +514,7 @@ const yugi =
       "ak": 2600,
       "df": 2300,
       "tp": "warrior",
-      "innerValue": "tp:dragon/000101/500*0",
+      "innerValue": "tp:dragon/F0G000/500*0",
       "desc": "Increase the ATK of this card by 500 points for each Dragon-Type monster on your opponent's side of the field and in your opponent's Graveyard."
     },
     {

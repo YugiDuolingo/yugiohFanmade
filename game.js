@@ -1858,6 +1858,18 @@ class YuGiOhGame {
             cardDiv.appendChild(ivTextarea);
         }
 
+        let localIndex = this.localPlayerIndex;
+        if (localIndex === undefined || localIndex === null) {
+            const params = new URLSearchParams(window.location.search);
+            const isMultiplayer = params.get('multiplayer');
+            if (isMultiplayer) {
+                const isCreator = sessionStorage.getItem('mp_isCreator') === '1';
+                localIndex = isCreator ? 0 : 1;
+            }
+        }
+        const cardOwnerIndex = player === 1 ? 0 : 1;
+        const isMyCard = (localIndex === cardOwnerIndex);
+
 
         // Brown color for face-down cards
         if ((location === 'field' || location === 'spelltrapfield') && !card.faceUp) {
@@ -1865,17 +1877,7 @@ class YuGiOhGame {
 
             // Add peek-active class if peek mode is on AND it's my card
             if (this.peekMode) {
-                let localIndex = this.localPlayerIndex;
-                if (localIndex === undefined || localIndex === null) {
-                    const params = new URLSearchParams(window.location.search);
-                    const isMultiplayer = params.get('multiplayer');
-                    if (isMultiplayer) {
-                        const isCreator = sessionStorage.getItem('mp_isCreator') === '1';
-                        localIndex = isCreator ? 0 : 1;
-                    }
-                }
-                const cardOwnerIndex = player === 1 ? 0 : 1;
-                const isMyCard = (localIndex === cardOwnerIndex);
+
 
                 if (isMyCard) {
                     cardDiv.classList.add('peek-active');
@@ -1934,7 +1936,7 @@ class YuGiOhGame {
         }
 
 
-
+        if (location === 'hand') { card.faceUp = false };
 
 
         if (card.faceUp !== false && (location === 'field' || location === 'spelltrapfield')) {
@@ -1966,18 +1968,24 @@ class YuGiOhGame {
             });
 
             let holdTimer;
-            valueDiv.addEventListener('mousedown', (e) => {
+
+            const startHold = (e) => {
                 e.stopPropagation();
                 holdTimer = setTimeout(() => {
                     this.moveMonsterToSpellTrap(card.id, player === 1 ? 0 : 1);
                 }, 600);
-            });
-            valueDiv.addEventListener('mouseup', (e) => {
+            };
+
+            const cancelHold = (e) => {
                 clearTimeout(holdTimer);
-            });
-            valueDiv.addEventListener('mouseleave', (e) => {
-                clearTimeout(holdTimer);
-            });
+            };
+
+            valueDiv.addEventListener('mousedown', startHold);
+            valueDiv.addEventListener('mouseup', cancelHold);
+            valueDiv.addEventListener('mouseleave', cancelHold);
+            valueDiv.addEventListener('touchstart', startHold, { passive: true });
+            valueDiv.addEventListener('touchend', cancelHold);
+            valueDiv.addEventListener('touchcancel', cancelHold);
 
             nameSection.appendChild(valueDiv);
         }
@@ -2160,7 +2168,7 @@ class YuGiOhGame {
         cardDiv.appendChild(akdfSection);
 
         //tooltip
-        if (card.faceUp) {
+        if (card.faceUp || isMyCard) {
             cardDiv.title = `${card.cn} - ${card.desc || 'No description'}`;
         } else {
             cardDiv.title = "";
