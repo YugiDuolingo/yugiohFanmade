@@ -1487,7 +1487,8 @@ class YuGiOhGame {
 
                     const indicator = document.createElement('div');
                     indicator.classList.add('destroyed-indicator');
-                    indicator.textContent = '💀';
+                    indicator.textContent = '😵';
+                    //indicator.textContent = '💀';
 
                     cardElement.appendChild(indicator);
                     cardElement.style.animation = 'vibrator 0.3s ease-in-out infinite';
@@ -2065,7 +2066,7 @@ class YuGiOhGame {
                     if (card.emoji) {
                         imageSection.innerHTML = '';
                         imageSection.textContent = card.emoji;
-                        imageSection.style.fontSize = '100px';
+                        imageSection.style.fontSize = '6vw';
                         // cardDiv.classList.add('alter-emoji');
                     } else {
                         imageSection.textContent = this.getCardType(card);
@@ -2097,7 +2098,7 @@ class YuGiOhGame {
                         if (card.emoji) {
                             imageSection.innerHTML = '';
                             imageSection.textContent = card.emoji;
-                            imageSection.style.fontSize = '48px';
+                            imageSection.style.fontSize = '6vw';
                             cardDiv.classList.add('alter-emoji');
                         } else {
                             imageSection.textContent = this.getCardType(card);
@@ -2112,7 +2113,7 @@ class YuGiOhGame {
                     // PRIORITY 3: No image path and has emoji - use emoji
                 } else if (!window.CARD_IMAGE_PATH && card.emoji) {
                     imageSection.textContent = card.emoji;
-                    imageSection.style.fontSize = '2vw';
+                    imageSection.style.fontSize = '6vw';
                     cardDiv.classList.add('alter-emoji');
                     imageSection.style.backgroundColor = 'transparent';
 
@@ -2130,7 +2131,7 @@ class YuGiOhGame {
                         if (card.emoji) {
                             imageSection.innerHTML = '';
                             imageSection.textContent = card.emoji;
-                            imageSection.style.fontSize = '48px';
+                            imageSection.style.fontSize = '6vw';
                             cardDiv.classList.add('alter-emoji');
                         } else {
                             imageSection.textContent = this.getCardType(card);
@@ -4360,6 +4361,8 @@ class YuGiOhGame {
 
             if (this.bp && this.selectedAttacker) {
                 this.directAttack(0);
+
+
             } else if (this.mp) {
                 this.showLPModificationPopup(0);
             }
