@@ -1013,7 +1013,7 @@ class YuGiOhGame {
         // Configure voice settings
         utterance.rate = 1.0;     // Speed (0.1 to 10)
         utterance.pitch = 1.0;    // Pitch (0 to 2)
-        utterance.volume = 0.5;   // Volume (0 to 1)
+        utterance.volume = 1;   // Volume (0 to 1)
         utterance.lang = localStorage.getItem('tts_lang') || navigator.language;
 
         // Optional: Select a specific voice
