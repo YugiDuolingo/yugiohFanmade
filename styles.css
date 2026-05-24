@@ -386,7 +386,7 @@ body {
   justify-content: center;
   font-family: 'Arial', monospace;
   /* Ensures equal character widths */
-  font-size: 1.7vw;
+  font-size: 1.8vw;
   /* 30vw ÷ 9 characters */
   letter-spacing: 0;
   transform: scaleX(1.67);
