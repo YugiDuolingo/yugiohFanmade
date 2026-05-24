@@ -1013,7 +1013,7 @@ class YuGiOhGame {
             : card.cn;
 
         // Create utterance with card name
-        const utterance = new SpeechSynthesisUtterance(card.cn);
+        const utterance = new SpeechSynthesisUtterance(text);
 
         // Configure voice settings
         utterance.rate = 1.0;     // Speed (0.1 to 10)
