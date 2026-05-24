@@ -76,6 +76,8 @@ class YuGiOhGame {
         this.demoMode = false;
         this.innervDebug = false;
 
+        this.seperate = false;
+
 
 
 
@@ -1006,6 +1008,9 @@ class YuGiOhGame {
 
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
+        const text = this.separateTTS
+            ? card.cn.replace(/ /g, ', ')
+            : card.cn;
 
         // Create utterance with card name
         const utterance = new SpeechSynthesisUtterance(card.cn);
@@ -1016,13 +1021,7 @@ class YuGiOhGame {
         utterance.volume = 1;   // Volume (0 to 1)
         utterance.lang = localStorage.getItem('tts_lang') || navigator.language;
 
-        // Optional: Select a specific voice
-        /*   const voices = window.speechSynthesis.getVoices();
-          if (voices.length > 0) {
-              // Try to find a good English voice
-              const preferredVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
-              utterance.voice = preferredVoice;
-          } */
+
 
         // Speak the card name
         window.speechSynthesis.speak(utterance);
@@ -3924,6 +3923,10 @@ class YuGiOhGame {
         ⚙ Inner V Debug<br>
         <span class="mode-status">${this.innervDebug ? 'ON' : 'OFF'}</span>
     </button>
+    <button id="toggle-separate-tts-btn" class="audio-toggle-btn game-mode-btn">
+    🔤 TTS Separate<br>
+    <span class="mode-status">${this.separateTTS ? 'ON' : 'OFF'}</span>
+</button>
 </div>
             
             
@@ -3955,6 +3958,12 @@ class YuGiOhGame {
         const ttsLangInput = popup.querySelector('#tts-lang-input');
         const demoBtn = document.getElementById('toggle-demo-btn');
         const innervDebugBtn = document.getElementById('toggle-innerv-debug-btn');
+        const separateTTSBtn = document.getElementById('toggle-separate-tts-btn');
+        separateTTSBtn.addEventListener('click', () => {
+            this.toggleSeparateTTS();
+            separateTTSBtn.classList.toggle('mode-btn-on', this.separateTTS);
+            separateTTSBtn.querySelector('.mode-status').textContent = this.separateTTS ? 'ON' : 'OFF';
+        });
 
 
         ttsLangInput.addEventListener('input', () => {
@@ -4067,6 +4076,11 @@ class YuGiOhGame {
         this.innervDebug = !this.innervDebug;
         console.log(`[INNERV DEBUG] ${this.innervDebug ? 'ON' : 'OFF'}`);
         this.displayAllCards();
+    }
+
+    toggleSeparateTTS() {
+        this.separateTTS = !this.separateTTS;
+        console.log(`[TTS SEPARATE] ${this.separateTTS ? 'ON' : 'OFF'}`);
     }
 
     // Normal restart (original behavior)
